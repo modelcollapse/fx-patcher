@@ -38,6 +38,10 @@ The **Out** meters (top right) show the signal actually leaving the patch on the
 
 The small spectrum display under inputs A/B shows the master output.
 
+### File FX
+
+The row under the file player shapes the loop itself: **Speed** (tape-style, 1× in the middle), **Pitch** (±1 octave, keeps the tempo), **Start** and **Length** (which part of the file loops), **Volume**, **Width** (mono to extra-wide), **Tone** (low-pass) and **Pan**. All eight can be LFO targets: pick **File** in an LFO's Slot menu, or press Learn and move one of these knobs. Sweeping Start makes a scanning, granular-style loop.
+
 ## Effect slots
 
 Each of the 8 strips has an effect menu, **Bypass**, 8 knobs, a **Mix** control (equal-power dry/wet), and in/out gain with meters. Press **Focus** on a strip to open all 16 of its knobs in the big **FOCUSED** panel. Knobs 9–16 only appear there.
@@ -75,7 +79,7 @@ Each LFO card has:
 - **Sync:** Free (uses **Rate** in Hz), or 8 bars down to 1/16, including triplets. Sync follows the BPM box.
 - **Depth:** a negative value inverts the LFO
 - **Smooth:** softens steps and jumps
-- **Three targets:** each target picks a slot and a knob number
+- **Three targets:** each target picks a slot (1–8, or **File** for the file player) and a knob number
 
 **Learn** is the quickest way to set a target. Press Learn on one of the target rows, then move any knob on a strip or in the Focus panel. The LFO switches itself on once it has a target.
 
@@ -103,6 +107,7 @@ In the **Record** section, arm any mix of Master, A, B and Slots 1–8, then pre
 | `fxpatcher.maxpat` | Main patch (open this) |
 | `fx.slot.maxpat` | One effect strip, used 8 times |
 | `fx.lfo.maxpat` | One LFO card, used 16 times |
+| `fx.filectl.maxpat` | File FX knob row (LFO target "File") |
 | `fxm.*.maxpat` | The effect modules, loaded into each slot |
 | `fxseq.js` | Scenes and sequencer |
 | `fxlfo.js` | LFO engine |

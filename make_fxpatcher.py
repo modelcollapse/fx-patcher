@@ -803,7 +803,7 @@ def build_lfo():
     j=0
     for r in (1,2,3):
         y=106+(r-1)*19
-        m1=menu(s,f"r{r}slot",["—"]+[str(k) for k in range(1,9)],0,(20,150+r*30,40,15),(2,y,40,15)); rep(m1,f"r{r}s",20,450+r*30)
+        m1=menu(s,f"r{r}slot",["—"]+[str(k) for k in range(1,9)]+["File"],0,(20,150+r*30,40,15),(2,y,40,15)); rep(m1,f"r{r}s",20,450+r*30)
         m2=menu(s,f"r{r}knob",[str(k) for k in range(1,17)],0,(70,150+r*30,40,15),(44,y,40,15)); rep(m2,f"r{r}k",140,450+r*30)
         lb=ltext(s,f"r{r}learn","Learn",1,(120,150+r*30,46,15),(86,y,46,15)); nov(s); rep(lb,f"r{r}l",260,450+r*30)
         for o in (m1,m2,lb): s.c(rk,j,o,0); j+=1
@@ -819,6 +819,33 @@ def build_lfo():
     s.add("panel",None,(900,600,154,178),(0,0,154,178),1,0,border=1,rounded=0,background=1)
     s.save("fx.lfo.maxpat",[100,100,1200,900],pres=True)
 
+
+FILE_LABELS=["Speed","Pitch","Start","Length","Volume","Width","Tone","Pan"]
+FILE_DEF=[0.6667,0.5,0.0,1.0,0.8,0.5,1.0,0.5]
+def build_filectl():
+    s=P()
+    s.obj("autopattr",(900,900,70,22),1,4)
+    modjs=s.obj("v8 fxmod.js",(20,500,90,22),1,2)
+    out=s.add("newobj","outlet",(20,560,30,22),None,1,0); s.c(modjs,0,out,0)
+    rshow=s.obj("route "+" ".join(str(i) for i in range(1,17)),(20,530,500,22),1,17); s.c(modjs,1,rshow,0)
+    rmod=s.obj("r fx.mod",(200,440,60,22),0,1); rtm=s.obj("route #1",(200,470,60,22),2,2); s.c(rmod,0,rtm,0)
+    pmod=s.obj("prepend mod",(200,500,80,22),1,1); s.c(rtm,0,pmod,0); s.c(pmod,0,modjs,0)
+    stouch=s.obj("s fx.touch",(300,500,70,22),1,0)
+    s.com("FILE FX",(20,20,80,20),(4,2,80,20),fontface=1)
+    s.com("LFO target: File · Learn works here too",(20,40,260,20),(4,22,170,32),fontsize=10.0)
+    lb=s.obj("loadbang",(600,20,60,22),1,1); dl=s.obj("delay 500",(600,50,60,22),2,1); s.c(lb,0,dl,0)
+    for i,(lab_,dv) in enumerate(zip(FILE_LABELS,FILE_DEF)):
+        x=180+i*72
+        s.com(lab_,(100+i*90,100,60,16),(x-8,0,60,16),textjustification=1)
+        d=dial(s,f"k{i+1}",lab_,(100+i*90,130,44,40),(x,16,44,40))
+        s.boxes[-1]["box"]["saved_attribute_attributes"]["valueof"]["parameter_initial"]=[dv]
+        pb=s.obj(f"prepend base {i+1}",(100+i*90,180,80,22),1,1); s.c(d,0,pb,0); s.c(pb,0,modjs,0)
+        pt=s.obj(f"prepend #1 {i+1}",(100+i*90,210,80,22),1,1); s.c(d,0,pt,0); s.c(pt,0,stouch,0)
+        psd=s.obj("prepend set",(100+i*90,560,70,22),1,1); s.c(rshow,i,psd,0); s.c(psd,0,d,0)
+        s.c(dl,0,d,0)
+    s.add("panel",None,(900,600,100,20),(0,0,760,56),1,0,border=1,rounded=0,background=1)
+    s.save("fx.filectl.maxpat",[100,100,1100,700],pres=True)
+
 # ======================= MAIN (v10) =======================
 def nov(p): p.boxes[-1]["box"].pop("varname",None)
 def num(p,name,init,mn,mx,pr,pres,keep=False):
@@ -829,13 +856,13 @@ def num(p,name,init,mn,mx,pr,pres,keep=False):
     return b
 def build_main():
     p=P(); W=1262.8
-    TOP=146; FY=TOP+274; SY=FY+94; MY=SY+302; MH=26+2*182; RY=MY+MH+6
+    TOP=146; FY=TOP+274; FCY=FY+92; SY=FY+94+60; MY=SY+302; MH=26+2*182; RY=MY+MH+6
     def sect(title,y,h,note=""):
         p.add("panel",None,(2400,y,W,h),(10,y,W,h),1,0,border=1,rounded=0,background=1)
         p.com("▾",(2400,y,16,20),(14,y+2,16,20)); p.com(title,(2420,y,200,20),(30,y+2,200,20),fontface=1)
         if note: p.com(note,(2620,y,800,20),(240,y+2,900,20))
     # ---------- header ----------
-    p.com("FX PATCHER v12.4",(12,12,348,20),(12,12,348,20))
+    p.com("FX PATCHER v12.5",(12,12,348,20),(12,12,348,20))
     au=ltext(p,"audio","Audio",1,(12,34,84,18),(12,36,84,18)); nov(p)
     pn=ltext(p,"panic","Panic",0,(100,34,84,18),(100,36,84,18)); nov(p)
     clr=ltext(p,"clear","Clear all",0,(188,34,84,18),(188,36,84,18)); nov(p)
@@ -914,7 +941,52 @@ def build_main():
     im=p.obj("matrix~ 6 4",(700,960,140,22),6,5,["signal"]*4+["list"])
     lr=p.obj("loadmess ramp 30",(860,930,110,22),1,1); p.c(lr,0,im,0)
     for k in range(4): p.c(adc,k,im,k)
-    p.c(pl,0,im,4); p.c(pl,1,im,5)
+    FGEN="""Param fvol(1);
+Param fpan(0.5);
+Param fwid(1);
+Param ftone(20000);
+History sl(0);
+History sr(0);
+History gl(1);
+History gr(1);
+mm = (in1 + in2) * 0.5;
+ss = (in1 - in2) * 0.5;
+la = mm + ss * fwid;
+ra = mm - ss * fwid;
+tl = fvol * min(1, 2 * (1 - fpan));
+tr = fvol * min(1, 2 * fpan);
+gl = gl + (tl - gl) * 0.002;
+gr = gr + (tr - gr) * 0.002;
+cf = 1 - exp(-twopi * clamp(ftone, 100, 20000) / samplerate);
+sl = sl + cf * (la - sl);
+sr = sr + cf * (ra - sr);
+out1 = sl * gl;
+out2 = sr * gr;
+"""
+    fg=gen_box(p,FGEN,(200,1050,200,22))
+    p.c(pl,0,fg,0); p.c(pl,1,fg,1); p.c(fg,0,im,4); p.c(fg,1,im,5)
+    fc=p.add("bpatcher",None,(200,1200,760,56),(10,FCY,760,56),0,1,[""],name="fx.filectl.maxpat",args=[9],embed=0,viewvisibility=1,varname="filectl")
+    frt=p.obj("route k1 k2 k3 k4 k5 k6 k7 k8",(200,1270,300,22),1,9); p.c(fc,0,frt,0)
+    e1=p.obj("expr 0.25*exp($f1*2.0794)",(200,1300,160,22),1,1); p.c(frt,0,e1,0)
+    m1_=p.obj("prepend speed",(200,1330,90,22),1,1); p.c(e1,0,m1_,0); p.c(m1_,0,pl,0)
+    e2=p.obj("expr ($f1-0.5)*2400.",(380,1300,130,22),1,1); p.c(frt,1,e2,0)
+    t2=p.obj("t f f",(380,1330,40,22),1,2); p.c(e2,0,t2,0)
+    m2=p.obj("prepend pitchshiftcent",(380,1390,140,22),1,1); p.c(t2,0,m2,0); p.c(m2,0,pl,0)
+    ab=p.obj("expr abs($f1)>5",(440,1360,100,22),1,1); p.c(t2,1,ab,0)
+    ch=p.obj("change",(440,1390,50,22),3,3); p.c(ab,0,ch,0)
+    m2b=p.obj("prepend timestretch",(440,1420,120,22),1,1); p.c(ch,0,m2b,0); p.c(m2b,0,pl,0)
+    pk34=p.obj("pak f f",(560,1300,60,22),2,1); p.c(frt,2,pk34,0); p.c(frt,3,pk34,1)
+    e34=p.obj("expr min($f1\\,0.98)",(560,1330,110,22),1,1)
+    se=p.obj("expr min($f1\\,0.98) + max(0.02\\, $f2*(1.-min($f1\\,0.98)))",(560,1360,330,22),2,1)
+    up34=p.obj("t l l",(560,1330,40,22),1,2); p.c(pk34,0,up34,0)
+    u1=p.obj("unpack f f",(560,1390,70,22),1,2); p.c(up34,0,u1,0)
+    tu=p.obj("t f f",(640,1390,40,22),1,2); p.c(u1,1,se,1); p.c(u1,0,tu,0); p.c(tu,1,se,0); p.c(tu,0,e34,0)
+    pk2=p.obj("pack f f",(560,1420,60,22),2,1); p.c(se,0,pk2,1); p.c(e34,0,pk2,0)
+    m34=p.obj("prepend selection",(560,1450,110,22),1,1); p.c(pk2,0,m34,0); p.c(m34,0,pl,0)
+    e5=p.obj("* 1.25",(900,1300,50,22),2,1); p.c(frt,4,e5,0); m5=p.obj("prepend fvol",(900,1330,80,22),1,1); p.c(e5,0,m5,0); p.c(m5,0,fg,0)
+    e6=p.obj("* 2.",(1000,1300,40,22),2,1); p.c(frt,5,e6,0); m6=p.obj("prepend fwid",(1000,1330,80,22),1,1); p.c(e6,0,m6,0); p.c(m6,0,fg,0)
+    e7=p.obj("expr 100.*exp($f1*5.298)",(1100,1300,150,22),1,1); p.c(frt,6,e7,0); m7=p.obj("prepend ftone",(1100,1330,80,22),1,1); p.c(e7,0,m7,0); p.c(m7,0,fg,0)
+    m8=p.obj("prepend fpan",(1260,1330,80,22),1,1); p.c(frt,7,m8,0); p.c(m8,0,fg,0)
     def subp(name,pr,ins,outs,inner):
         q=P(); il=[q.obj("inlet",(20+i*300,10,30,22),0,1) for i in range(ins)]
         ol=[q.add("newobj","outlet",(20+i*120,560,30,22),None,1,0) for i in range(outs)]
@@ -1170,5 +1242,5 @@ def build_main():
     p.com("Audio on · pick sources · cable it · pick effects · Focus to edit · Shift-click a scene to store · arm sources and press Record",
           (3600,1400,900,20),(12,RY+176,900,20))
     p.save("fxpatcher.maxpat",[40,30,1300,RY+210],pres=True)
-build_empty(); build_heat(); build_drift(); build_shimmer(); build_extra_modules(); build_slot(); build_lfo(); build_main()
+build_empty(); build_heat(); build_drift(); build_shimmer(); build_extra_modules(); build_slot(); build_lfo(); build_filectl(); build_main()
 print("built")
