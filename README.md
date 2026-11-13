@@ -57,7 +57,7 @@ The 15 effects:
 | Tape | Wow, flutter, age, hiss and dropouts |
 | Freq | Frequency shifter with feedback |
 | Loop | Live looper. It records continuously while **Rec** is up; turn Rec down to hold and repeat the loop. Also has Length, Speed, Erase, Dub, Reverse, Tone and Start. |
-| Swell | Auto-swell, stepping in for a sidechain duck for now |
+| Swell | Ducks on each hit and swells back in. Turn up **Cycle** to make it swell on its own, which works on pads and drones. |
 | Filter | Multimode filter with LFO and envelope |
 | Crush | Bit and sample-rate reduction with fold |
 | Empty | Passes sound through unchanged |
@@ -108,6 +108,7 @@ In the **Record** section, arm any mix of Master, A, B and Slots 1–8, then pre
 | `fxlfo.js` | LFO engine |
 | `fxmod.js` | Per-slot "knob + LFO" combiner |
 | `fxrec.js` | Recorder take folders and settings |
+| `fxtest.maxpat` | Self-test: runs every effect on a test tone and prints each one's output level to the Max Console |
 | `make_fxpatcher.py` | Python generator that writes all the `.maxpat` files: `python3 make_fxpatcher.py ./` |
 
 ## Roadmap

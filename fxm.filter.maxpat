@@ -186,7 +186,7 @@
           "",
           ""
          ],
-         "code": "Param cutoff(1000);\nParam reso(0.3);\nParam type(0);\nParam drive(0);\nParam rate(0.2);\nParam depth(0);\nParam env(0);\nParam envspeed(0.3);\nParam spread(0);\nHistory i1l(0);\nHistory i2l(0);\nHistory i1r(0);\nHistory i2r(0);\nHistory e(0);\nx = max(abs(in1), abs(in2));\ne = e + (x - e) * (1 - exp(-1 / mstosamps(5 + envspeed * 500)));\nmd = depth * cycle(rate) + env * e * 4;\nfl = clamp(cutoff * pow(2, md * 4 + spread), 20, 18000);\nfg = clamp(cutoff * pow(2, md * 4 - spread), 20, 18000);\nk = 2 - 2 * clamp(reso, 0, 0.97);\ndg = 1 + drive * 8;\nxl = drive > 0.001 ? tanh(in1 * dg) / tanh(dg) : in1;\nxr = drive > 0.001 ? tanh(in2 * dg) / tanh(dg) : in2;\nt = floor(clamp(type, 0, 3) + 0.5);\ngl = tan(pi * fl / samplerate);\na1 = 1 / (1 + gl * (gl + k));\na2 = gl * a1;\na3 = gl * a2;\nv3 = xl - i2l;\nv1 = a1 * i1l + a2 * v3;\nv2 = i2l + a2 * i1l + a3 * v3;\ni1l = 2 * v1 - i1l;\ni2l = 2 * v2 - i2l;\nhl = xl - k * v1 - v2;\nyl = t < 0.5 ? v2 : t < 1.5 ? v1 : t < 2.5 ? hl : v2 + hl;\ngr = tan(pi * fg / samplerate);\nb1 = 1 / (1 + gr * (gr + k));\nb2 = gr * b1;\nb3 = gr * b2;\nw3 = xr - i2r;\nw1 = b1 * i1r + b2 * w3;\nw2 = i2r + b2 * i1r + b3 * w3;\ni1r = 2 * w1 - i1r;\ni2r = 2 * w2 - i2r;\nhr = xr - k * w1 - w2;\nyr = t < 0.5 ? w2 : t < 1.5 ? w1 : t < 2.5 ? hr : w2 + hr;\nout1 = yl;\nout2 = yr;\n",
+         "code": "Param cutoff(1000);\nParam reso(0.3);\nParam type(0);\nParam drive(0);\nParam lforate(0.2);\nParam depth(0);\nParam env(0);\nParam envspeed(0.3);\nParam spread(0);\nHistory i1l(0);\nHistory i2l(0);\nHistory i1r(0);\nHistory i2r(0);\nHistory envf(0);\nx = max(abs(in1), abs(in2));\nenvf = envf + (x - envf) * (1 - exp(-1 / mstosamps(5 + envspeed * 500)));\nmd = depth * cycle(lforate) + env * envf * 4;\nfl = clamp(cutoff * pow(2, md * 4 + spread), 20, 18000);\nfg = clamp(cutoff * pow(2, md * 4 - spread), 20, 18000);\nk = 2 - 2 * clamp(reso, 0, 0.97);\ndg = 1 + drive * 8;\nxl = drive > 0.001 ? tanh(in1 * dg) / tanh(dg) : in1;\nxr = drive > 0.001 ? tanh(in2 * dg) / tanh(dg) : in2;\nt = floor(clamp(type, 0, 3) + 0.5);\ngl = tan(pi * fl / samplerate);\na1 = 1 / (1 + gl * (gl + k));\na2 = gl * a1;\na3 = gl * a2;\nv3 = xl - i2l;\nv1 = a1 * i1l + a2 * v3;\nv2 = i2l + a2 * i1l + a3 * v3;\ni1l = 2 * v1 - i1l;\ni2l = 2 * v2 - i2l;\nhl = xl - k * v1 - v2;\nyl = t < 0.5 ? v2 : t < 1.5 ? v1 : t < 2.5 ? hl : v2 + hl;\ngr = tan(pi * fg / samplerate);\nb1 = 1 / (1 + gr * (gr + k));\nb2 = gr * b1;\nb3 = gr * b2;\nw3 = xr - i2r;\nw1 = b1 * i1r + b2 * w3;\nw2 = i2r + b2 * i1r + b3 * w3;\ni1r = 2 * w1 - i1r;\ni2r = 2 * w2 - i2r;\nhr = xr - k * w1 - w2;\nyr = t < 0.5 ? w2 : t < 1.5 ? w1 : t < 2.5 ? hr : w2 + hr;\nout1 = yl;\nout2 = yr;\n",
          "fontface": 0,
          "fontname": "<Monospaced>",
          "fontsize": 12.0
@@ -468,7 +468,7 @@
       150.0,
       22.0
      ],
-     "text": "prepend rate",
+     "text": "prepend lforate",
      "outlettype": [
       ""
      ]

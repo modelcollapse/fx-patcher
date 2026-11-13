@@ -186,7 +186,7 @@
           "",
           ""
          ],
-         "code": "Param attack(800);\nParam thresh(0.02);\nParam sens(0.5);\nParam depth(1);\nParam hold(50);\nHistory ef(0);\nHistory es(0);\nHistory g(1);\nHistory lock(0);\nx = max(abs(in1), abs(in2));\nef = ef + (x - ef) * (1 - exp(-1 / (0.003 * samplerate)));\nes = es + (x - es) * (1 - exp(-1 / (0.25 * samplerate)));\nonset = (ef > thresh) && (ef > es * (1.2 + (1 - sens) * 3)) && (lock <= 0);\nif (onset) {\n    g = 1 - depth;\n    lock = mstosamps(hold) + mstosamps(attack) * 0.5;\n}\nlock = lock - 1;\ng = g + (1 - g) * (1 - exp(-1 / mstosamps(max(attack, 5))));\nout1 = in1 * g;\nout2 = in2 * g;\n",
+         "code": "Param attack(800);\nParam thresh(0.02);\nParam sens(0.5);\nParam depth(1);\nParam hold(50);\nParam cyc(0);\nHistory ct(0);\nHistory ef(0);\nHistory es(0);\nHistory g(1);\nHistory lock(0);\nx = max(abs(in1), abs(in2));\nef = ef + (x - ef) * (1 - exp(-1 / (0.003 * samplerate)));\nes = es + (x - es) * (1 - exp(-1 / (0.25 * samplerate)));\nper = mstosamps(250 + (1 - cyc) * 7750);\nct = cyc > 0.001 ? ct + 1 : 0;\ntick = cyc > 0.001 && ct >= per;\nct = tick ? 0 : ct;\nonset = (((ef > thresh) && (ef > es * (1.2 + (1 - sens) * 3))) || tick) && (lock <= 0);\nif (onset) {\n    g = 1 - depth;\n    lock = mstosamps(hold) + mstosamps(attack) * 0.5;\n}\nlock = lock - 1;\ng = g + (1 - g) * (1 - exp(-1 / mstosamps(max(attack, 5))));\nout1 = in1 * g;\nout2 = in2 * g;\n",
          "fontface": 0,
          "fontname": "<Monospaced>",
          "fontsize": 12.0
@@ -455,6 +455,24 @@
       ""
      ]
     }
+   },
+   {
+    "box": {
+     "id": "obj-16",
+     "maxclass": "newobj",
+     "numinlets": 2,
+     "numoutlets": 1,
+     "patching_rect": [
+      1450.0,
+      110.0,
+      150.0,
+      22.0
+     ],
+     "text": "prepend cyc",
+     "outlettype": [
+      ""
+     ]
+    }
    }
   ],
   "lines": [
@@ -666,6 +684,30 @@
     "patchline": {
      "source": [
       "obj-15",
+      0
+     ],
+     "destination": [
+      "obj-7",
+      0
+     ]
+    }
+   },
+   {
+    "patchline": {
+     "source": [
+      "obj-4",
+      5
+     ],
+     "destination": [
+      "obj-16",
+      0
+     ]
+    }
+   },
+   {
+    "patchline": {
+     "source": [
+      "obj-16",
       0
      ],
      "destination": [

@@ -186,7 +186,7 @@
           "",
           ""
          ],
-         "code": "Param rec(0);\nParam length(2000);\nParam speed(1);\nParam erase(0.1);\nParam dub(1);\nParam reverse(0);\nParam tone(18000);\nParam start(0);\nData lb(1536000, 2);\nHistory pos(0);\nHistory lpl(0);\nHistory lpr(0);\nlen = clamp(mstosamps(length), 1000, dim(lb) - 2);\nst = floor(clamp(start, 0, 1) * (dim(lb) - len - 1));\np = st + pos;\nxl = peek(lb, p, 0, interp=\"linear\", boundmode=\"wrap\");\nxr = peek(lb, p, 1, interp=\"linear\", boundmode=\"wrap\");\nr = rec > 0.5;\nkeep = r ? 1 - erase * 0.02 : 1;\npoke(lb, xl * keep + in1 * dub * r, floor(p), 0);\npoke(lb, xr * keep + in2 * dub * r, floor(p), 1);\npos = wrap(pos + speed * (reverse > 0.5 ? -1 : 1), 0, len);\nc = 1 - exp(-twopi * clamp(tone, 200, 20000) / samplerate);\nlpl = lpl + c * (xl - lpl);\nlpr = lpr + c * (xr - lpr);\nout1 = lpl;\nout2 = lpr;\n",
+         "code": "Param recon(1);\nParam looplen(2000);\nParam spd(1);\nParam erase(0.1);\nParam dub(1);\nParam rev(0);\nParam tone(18000);\nParam startpos(0);\nData lbuf(768000, 2);\nHistory ph(0);\nHistory lpl(0);\nHistory lpr(0);\nln = clamp(mstosamps(looplen), 1000, 760000);\nso = floor(clamp(startpos, 0, 1) * (767000 - ln));\nidx = so + ph;\nxl = peek(lbuf, idx, 0, interp=\"linear\", boundmode=\"wrap\");\nxr = peek(lbuf, idx, 1, interp=\"linear\", boundmode=\"wrap\");\nrg = recon > 0.5;\nkp = 1 - erase * 0.02 * rg;\nwi = floor(idx);\npoke(lbuf, xl * kp + in1 * dub * rg, wi, 0);\npoke(lbuf, xr * kp + in2 * dub * rg, wi, 1);\ndirn = 1 - 2 * (rev > 0.5);\nph = wrap(ph + spd * dirn, 0, ln);\ncf = 1 - exp(-twopi * clamp(tone, 200, 20000) / samplerate);\nlpl = lpl + cf * (xl - lpl);\nlpr = lpr + cf * (xr - lpr);\nout1 = lpl;\nout2 = lpr;\n",
          "fontface": 0,
          "fontname": "<Monospaced>",
          "fontsize": 12.0
@@ -342,7 +342,7 @@
       150.0,
       22.0
      ],
-     "text": "prepend rec",
+     "text": "prepend recon",
      "outlettype": [
       ""
      ]
@@ -378,7 +378,7 @@
       150.0,
       22.0
      ],
-     "text": "prepend length",
+     "text": "prepend looplen",
      "outlettype": [
       ""
      ]
@@ -414,7 +414,7 @@
       150.0,
       22.0
      ],
-     "text": "prepend speed",
+     "text": "prepend spd",
      "outlettype": [
       ""
      ]
@@ -486,7 +486,7 @@
       150.0,
       22.0
      ],
-     "text": "prepend reverse",
+     "text": "prepend rev",
      "outlettype": [
       ""
      ]
@@ -540,7 +540,7 @@
       150.0,
       22.0
      ],
-     "text": "prepend start",
+     "text": "prepend startpos",
      "outlettype": [
       ""
      ]

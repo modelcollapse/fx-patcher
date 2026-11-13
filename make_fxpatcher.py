@@ -433,6 +433,8 @@ Param thresh(0.02);
 Param sens(0.5);
 Param depth(1);
 Param hold(50);
+Param cyc(0);
+History ct(0);
 History ef(0);
 History es(0);
 History g(1);
@@ -440,7 +442,11 @@ History lock(0);
 x = max(abs(in1), abs(in2));
 ef = ef + (x - ef) * (1 - exp(-1 / (0.003 * samplerate)));
 es = es + (x - es) * (1 - exp(-1 / (0.25 * samplerate)));
-onset = (ef > thresh) && (ef > es * (1.2 + (1 - sens) * 3)) && (lock <= 0);
+per = mstosamps(250 + (1 - cyc) * 7750);
+ct = cyc > 0.001 ? ct + 1 : 0;
+tick = cyc > 0.001 && ct >= per;
+ct = tick ? 0 : ct;
+onset = (((ef > thresh) && (ef > es * (1.2 + (1 - sens) * 3))) || tick) && (lock <= 0);
 if (onset) {
     g = 1 - depth;
     lock = mstosamps(hold) + mstosamps(attack) * 0.5;
@@ -455,7 +461,7 @@ FILTER_CODE = """Param cutoff(1000);
 Param reso(0.3);
 Param type(0);
 Param drive(0);
-Param rate(0.2);
+Param lforate(0.2);
 Param depth(0);
 Param env(0);
 Param envspeed(0.3);
@@ -464,10 +470,10 @@ History i1l(0);
 History i2l(0);
 History i1r(0);
 History i2r(0);
-History e(0);
+History envf(0);
 x = max(abs(in1), abs(in2));
-e = e + (x - e) * (1 - exp(-1 / mstosamps(5 + envspeed * 500)));
-md = depth * cycle(rate) + env * e * 4;
+envf = envf + (x - envf) * (1 - exp(-1 / mstosamps(5 + envspeed * 500)));
+md = depth * cycle(lforate) + env * envf * 4;
 fl = clamp(cutoff * pow(2, md * 4 + spread), 20, 18000);
 fg = clamp(cutoff * pow(2, md * 4 - spread), 20, 18000);
 k = 2 - 2 * clamp(reso, 0, 0.97);
@@ -502,11 +508,11 @@ out2 = yr;
 """
 
 CRUSH_CODE = """Param bits(8);
-Param rate(4);
+Param holdrate(4);
 Param drive(0);
 Param tone(18000);
 Param jitter(0);
-Param fold(0);
+Param foldamt(0);
 Param level(1);
 History hl(0);
 History hr(0);
@@ -514,7 +520,7 @@ History cnt(0);
 History lpl(0);
 History lpr(0);
 cnt = cnt + 1;
-rt = max(1, rate * (1 + jitter * noise()));
+rt = max(1, holdrate * (1 + jitter * noise()));
 if (cnt >= rt) {
     cnt = 0;
     hl = in1;
@@ -526,8 +532,8 @@ yr = floor(hr * q + 0.5) / q;
 dg = 1 + drive * 10;
 yl = drive > 0.001 ? tanh(yl * dg) / tanh(dg) : yl;
 yr = drive > 0.001 ? tanh(yr * dg) / tanh(dg) : yr;
-yl = fold > 0.001 ? sin(yl * (1 + fold * 6) * pi * 0.5) : yl;
-yr = fold > 0.001 ? sin(yr * (1 + fold * 6) * pi * 0.5) : yr;
+yl = foldamt > 0.001 ? sin(yl * (1 + foldamt * 6) * pi * 0.5) : yl;
+yr = foldamt > 0.001 ? sin(yr * (1 + foldamt * 6) * pi * 0.5) : yr;
 c = 1 - exp(-twopi * clamp(tone, 200, 20000) / samplerate);
 lpl = lpl + c * (yl - lpl);
 lpr = lpr + c * (yr - lpr);
@@ -535,31 +541,33 @@ out1 = lpl * level;
 out2 = lpr * level;
 """
 
-LOOP_CODE = """Param rec(0);
-Param length(2000);
-Param speed(1);
+LOOP_CODE = """Param recon(1);
+Param looplen(2000);
+Param spd(1);
 Param erase(0.1);
 Param dub(1);
-Param reverse(0);
+Param rev(0);
 Param tone(18000);
-Param start(0);
-Data lb(1536000, 2);
-History pos(0);
+Param startpos(0);
+Data lbuf(768000, 2);
+History ph(0);
 History lpl(0);
 History lpr(0);
-len = clamp(mstosamps(length), 1000, dim(lb) - 2);
-st = floor(clamp(start, 0, 1) * (dim(lb) - len - 1));
-p = st + pos;
-xl = peek(lb, p, 0, interp="linear", boundmode="wrap");
-xr = peek(lb, p, 1, interp="linear", boundmode="wrap");
-r = rec > 0.5;
-keep = r ? 1 - erase * 0.02 : 1;
-poke(lb, xl * keep + in1 * dub * r, floor(p), 0);
-poke(lb, xr * keep + in2 * dub * r, floor(p), 1);
-pos = wrap(pos + speed * (reverse > 0.5 ? -1 : 1), 0, len);
-c = 1 - exp(-twopi * clamp(tone, 200, 20000) / samplerate);
-lpl = lpl + c * (xl - lpl);
-lpr = lpr + c * (xr - lpr);
+ln = clamp(mstosamps(looplen), 1000, 760000);
+so = floor(clamp(startpos, 0, 1) * (767000 - ln));
+idx = so + ph;
+xl = peek(lbuf, idx, 0, interp="linear", boundmode="wrap");
+xr = peek(lbuf, idx, 1, interp="linear", boundmode="wrap");
+rg = recon > 0.5;
+kp = 1 - erase * 0.02 * rg;
+wi = floor(idx);
+poke(lbuf, xl * kp + in1 * dub * rg, wi, 0);
+poke(lbuf, xr * kp + in2 * dub * rg, wi, 1);
+dirn = 1 - 2 * (rev > 0.5);
+ph = wrap(ph + spd * dirn, 0, ln);
+cf = 1 - exp(-twopi * clamp(tone, 200, 20000) / samplerate);
+lpl = lpl + cf * (xl - lpl);
+lpr = lpr + cf * (xr - lpr);
 out1 = lpl;
 out2 = lpr;
 """
@@ -631,15 +639,15 @@ def build_extra_modules():
     gen_module("fxm.tape.maxpat",TAPE_CODE,{1:["prepend wow"],2:["prepend flutter"],3:["prepend age"],4:["prepend hiss"],
         5:["prepend drop"],6:["prepend sat"],7:["prepend tone"],8:["prepend speed"]})
     gen_module("fxm.swell.maxpat",SWELL_CODE,{1:["expr 5.*exp($f1*6.68)","prepend attack"],2:["expr 0.001*exp($f1*5.3)","prepend thresh"],
-        3:["prepend sens"],4:["prepend depth"],5:["* 2000.","prepend hold"]})
+        3:["prepend sens"],4:["prepend depth"],5:["* 2000.","prepend hold"],6:["prepend cyc"]})
     gen_module("fxm.filter.maxpat",FILTER_CODE,{1:["expr 20.*exp($f1*6.8)","prepend cutoff"],2:["prepend reso"],
-        3:["* 3.99","i","prepend type"],4:["prepend drive"],5:["expr 0.01*exp($f1*7.6)","prepend rate"],6:["prepend depth"],
+        3:["* 3.99","i","prepend type"],4:["prepend drive"],5:["expr 0.01*exp($f1*7.6)","prepend lforate"],6:["prepend depth"],
         7:["prepend env"],8:["prepend envspeed"],9:["scale 0. 1. -2. 2.","prepend spread"]})
-    gen_module("fxm.crush.maxpat",CRUSH_CODE,{1:["scale 0. 1. 16. 1.","prepend bits"],2:["expr exp($f1*4.16)","prepend rate"],
-        3:["prepend drive"],4:["expr 200.*exp($f1*4.605)","prepend tone"],5:["prepend jitter"],6:["prepend fold"],7:["* 2.","prepend level"]})
-    gen_module("fxm.loop.maxpat",LOOP_CODE,{1:["> 0.5","prepend rec"],2:["expr 100.*exp($f1*5.7)","prepend length"],
-        3:["expr 0.25*exp($f1*2.0794)","prepend speed"],4:["prepend erase"],5:["prepend dub"],6:["> 0.5","prepend reverse"],
-        7:["expr 200.*exp($f1*4.605)","prepend tone"],8:["prepend start"]})
+    gen_module("fxm.crush.maxpat",CRUSH_CODE,{1:["scale 0. 1. 16. 1.","prepend bits"],2:["expr exp($f1*4.16)","prepend holdrate"],
+        3:["prepend drive"],4:["expr 200.*exp($f1*4.605)","prepend tone"],5:["prepend jitter"],6:["prepend foldamt"],7:["* 2.","prepend level"]})
+    gen_module("fxm.loop.maxpat",LOOP_CODE,{1:["> 0.5","prepend recon"],2:["expr 100.*exp($f1*5.7)","prepend looplen"],
+        3:["expr 0.25*exp($f1*2.0794)","prepend spd"],4:["prepend erase"],5:["prepend dub"],6:["> 0.5","prepend rev"],
+        7:["expr 200.*exp($f1*4.605)","prepend tone"],8:["prepend startpos"]})
     build_memory(); build_freq()
 
 D="–"
@@ -656,7 +664,7 @@ MODULES.update({
  "Tape":{"labels":lab("Wow Flutter Age Hiss Drop Sat Tone Speed".split()),"defaults":dfl([0.3,0.2,0.3,0.1,0,0.3,0.6,0.5])},
  "Freq":{"labels":lab("Shift Fine Feedbk Delay Spread".split()),"defaults":dfl([0.55,0.5,0.3,0.05,0])},
  "Loop":{"labels":lab("Rec Length Speed Erase Dub Reverse Tone Start".split()),"defaults":dfl([1,0.6,0.6667,0.1,1,0,1,0])},
- "Swell":{"labels":lab("Attack Thresh Sens Depth Hold".split()),"defaults":dfl([0.6,0.3,0.5,1,0.03])},
+ "Swell":{"labels":lab("Attack Thresh Sens Depth Hold Cycle".split()),"defaults":dfl([0.6,0.3,0.85,1,0.03,0])},
  "Filter":{"labels":lab("Cutoff Reso Type Drive Rate Depth Env EnvSpd Spread".split()),"defaults":dfl([0.6,0.3,0,0,0.3,0,0,0.3,0.5])},
  "Crush":{"labels":lab("Bits Rate Drive Tone Jitter Fold Level".split()),"defaults":dfl([0.5,0.3,0,1,0,0,0.5])},
 })

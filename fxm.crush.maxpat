@@ -186,7 +186,7 @@
           "",
           ""
          ],
-         "code": "Param bits(8);\nParam rate(4);\nParam drive(0);\nParam tone(18000);\nParam jitter(0);\nParam fold(0);\nParam level(1);\nHistory hl(0);\nHistory hr(0);\nHistory cnt(0);\nHistory lpl(0);\nHistory lpr(0);\ncnt = cnt + 1;\nrt = max(1, rate * (1 + jitter * noise()));\nif (cnt >= rt) {\n    cnt = 0;\n    hl = in1;\n    hr = in2;\n}\nq = pow(2, clamp(bits, 1, 16) - 1);\nyl = floor(hl * q + 0.5) / q;\nyr = floor(hr * q + 0.5) / q;\ndg = 1 + drive * 10;\nyl = drive > 0.001 ? tanh(yl * dg) / tanh(dg) : yl;\nyr = drive > 0.001 ? tanh(yr * dg) / tanh(dg) : yr;\nyl = fold > 0.001 ? sin(yl * (1 + fold * 6) * pi * 0.5) : yl;\nyr = fold > 0.001 ? sin(yr * (1 + fold * 6) * pi * 0.5) : yr;\nc = 1 - exp(-twopi * clamp(tone, 200, 20000) / samplerate);\nlpl = lpl + c * (yl - lpl);\nlpr = lpr + c * (yr - lpr);\nout1 = lpl * level;\nout2 = lpr * level;\n",
+         "code": "Param bits(8);\nParam holdrate(4);\nParam drive(0);\nParam tone(18000);\nParam jitter(0);\nParam foldamt(0);\nParam level(1);\nHistory hl(0);\nHistory hr(0);\nHistory cnt(0);\nHistory lpl(0);\nHistory lpr(0);\ncnt = cnt + 1;\nrt = max(1, holdrate * (1 + jitter * noise()));\nif (cnt >= rt) {\n    cnt = 0;\n    hl = in1;\n    hr = in2;\n}\nq = pow(2, clamp(bits, 1, 16) - 1);\nyl = floor(hl * q + 0.5) / q;\nyr = floor(hr * q + 0.5) / q;\ndg = 1 + drive * 10;\nyl = drive > 0.001 ? tanh(yl * dg) / tanh(dg) : yl;\nyr = drive > 0.001 ? tanh(yr * dg) / tanh(dg) : yr;\nyl = foldamt > 0.001 ? sin(yl * (1 + foldamt * 6) * pi * 0.5) : yl;\nyr = foldamt > 0.001 ? sin(yr * (1 + foldamt * 6) * pi * 0.5) : yr;\nc = 1 - exp(-twopi * clamp(tone, 200, 20000) / samplerate);\nlpl = lpl + c * (yl - lpl);\nlpr = lpr + c * (yr - lpr);\nout1 = lpl * level;\nout2 = lpr * level;\n",
          "fontface": 0,
          "fontname": "<Monospaced>",
          "fontsize": 12.0
@@ -378,7 +378,7 @@
       150.0,
       22.0
      ],
-     "text": "prepend rate",
+     "text": "prepend holdrate",
      "outlettype": [
       ""
      ]
@@ -468,7 +468,7 @@
       150.0,
       22.0
      ],
-     "text": "prepend fold",
+     "text": "prepend foldamt",
      "outlettype": [
       ""
      ]
