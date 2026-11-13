@@ -703,7 +703,7 @@ def build_slot():
     # mix + bypass
     mixd=dial1(s,"mix","Mix",(700,40,44,40),(2+2*46.2,68+2*57+14,44,40))
     s.com("Mix",(700,20,60,16),(2+2*46.2-8,68+2*57,60,16),textjustification=1)
-    pk=s.obj("pak f f",(700,100,60,22),2,1); s.c(mixd,0,pk,0); s.c(byp,0,pk,1)
+    pk=s.obj("pak f f",(700,100,60,22),2,1); s.c(byp,0,pk,1)
     ex=s.obj("expr $f1*(1.-$f2)",(700,130,120,22),2,1); s.c(pk,0,ex,0)
     t2=s.obj("t f f",(700,160,50,22),1,2); s.c(ex,0,t2,0)
     ec=s.obj("expr cos($f1*1.5708)",(700,190,130,22),1,1); es=s.obj("expr sin($f1*1.5708)",(850,190,130,22),1,1)
@@ -717,11 +717,20 @@ def build_slot():
     s.c(gA,0,sA,0)
     rB=s.obj("r fx.panel.out",(1200,20,100,22),0,1); gB=s.obj("gate 1 0",(1200,50,60,22),2,1); s.c(rB,0,gB,1)
     rtB=s.obj("route "+" ".join(str(i) for i in range(1,17)),(1200,80,500,22),1,17); s.c(gB,0,rtB,0)
-    modjs=s.obj("v8 fxmod.js",(1000,560,90,22),1,2); s.c(modjs,0,poly,2)
-    rshow=s.obj("route "+" ".join(str(i) for i in range(1,17)),(1000,600,500,22),1,17); s.c(modjs,1,rshow,0)
+    modjs=s.obj("v8 fxmod.js",(1000,560,90,22),1,2)
+    rk17=s.obj("route k17",(1000,590,70,22),1,2); s.c(modjs,0,rk17,0); s.c(rk17,0,pk,0); s.c(rk17,1,poly,2)
+    rshow=s.obj("route "+" ".join(str(i) for i in range(1,18)),(1000,620,520,22),1,18); s.c(modjs,1,rshow,0)
+    pb17=s.obj("prepend base 17",(700,70,90,22),1,1); s.c(mixd,0,pb17,0); s.c(pb17,0,modjs,0)
+    pt17=s.obj("prepend #1 17",(800,70,90,22),1,1); s.c(mixd,0,pt17,0)
+    ps17=s.obj("prepend set",(800,100,70,22),1,1); s.c(rshow,16,ps17,0); s.c(ps17,0,mixd,0)
     rmod=s.obj("r fx.mod",(1100,500,60,22),0,1); rtm=s.obj("route #1",(1100,530,60,22),2,2); s.c(rmod,0,rtm,0)
     pmod=s.obj("prepend mod",(1100,560,80,22),1,1); s.c(rtm,0,pmod,0); s.c(pmod,0,modjs,0)
-    stouch=s.obj("s fx.touch",(1200,560,70,22),1,0)
+    stouch=s.obj("s fx.touch",(1200,560,70,22),1,0); s.c(pt17,0,stouch,0)
+    slab=s.obj("s fx.labels",(1300,700,70,22),1,0)
+    rask=s.obj("r fx.labels.ask",(1400,600,90,22),0,1)
+    plab1=s.obj("prepend #1",(1300,670,70,22),1,1); s.c(plab1,0,slab,0)
+    appmix=s.obj("append Mix",(1300,640,80,22),1,1); s.c(appmix,0,plab1,0)
+    zask=s.obj("zl reg",(1400,630,50,22),2,1); s.c(rask,0,zask,0); s.c(zask,0,appmix,0)
     dials=[]; labs=[]
     for i in range(16):
         on=i<8
@@ -734,7 +743,8 @@ def build_slot():
         s.c(d,0,pp,0); s.c(pp,0,gA,1); s.c(rtB,i,d,0); dials.append(d)
         pb=s.obj(f"prepend base {i+1}",(1000+i*50,230,80,22),1,1); s.c(d,0,pb,0); s.c(pb,0,modjs,0)
         pt=s.obj(f"prepend #1 {i+1}",(1000+i*50,260,80,22),1,1); s.c(d,0,pt,0); s.c(pt,0,stouch,0)
-        psd=s.obj("prepend set",(1000+i*50,630,70,22),1,1); s.c(rshow,i,psd,0); s.c(psd,0,d,0)
+        psd=s.obj("prepend set",(1000+i*50,650,70,22),1,1); s.c(rshow,i,psd,0); s.c(psd,0,d,0)
+        pkf=s.obj(f"prepend k{i+1}",(1000+i*50,680,70,22),1,1); s.c(rshow,i,pkf,0); s.c(pkf,0,gA,1)
     # focus logic
     ft=s.obj("t b",(220,640,30,22),1,1,["bang"]); s.c(fb,0,ft,0)
     fi=s.obj("i #1",(220,670,40,22),2,1); s.c(ft,0,fi,0)
@@ -762,7 +772,7 @@ def build_slot():
         tb=s.obj("t b b b b",(x,740,80,22),1,4); s.c(sel,k,tb,0)
         ma=s.msg(f"assignpatcher 1 fxm.{name.lower()}",(x,780,180,22)); s.c(tb,3,ma,0); s.c(ma,0,poly,0)
         mn=s.msg(name,(x,810,60,22)); s.c(tb,2,mn,0); s.c(mn,0,zlT,0)
-        ml=s.msg(MODULES[name]["labels"],(x,840,250,22)); s.c(tb,1,ml,0); s.c(ml,0,zlL,0)
+        ml=s.msg(MODULES[name]["labels"],(x,840,250,22)); s.c(tb,1,ml,0); s.c(ml,0,zlL,0); s.c(ml,0,appmix,0); s.c(ml,0,zask,1)
         md=s.msg(MODULES[name]["defaults"],(x,870,250,22)); s.c(tb,0,md,0)
         up=s.obj("unpack "+" ".join(["f"]*16),(x,900,250,22),1,16); s.c(md,0,up,0)
         for i,d in enumerate(dials): s.c(up,i,d,0)
@@ -796,17 +806,29 @@ def build_lfo():
     lmr=s.obj("loadmess 1.",(20,40,70,22),1,1); s.c(lmr,0,rt,0)
     dp=ld("depth","Depth",-100.,100.,50.,5,1.,(80,60,44,48),(55,40,44,48)); rep(dp,"depth",500,400)
     smo=ld("smooth","Smooth",0.,100.,10.,5,1.,(140,60,44,48),(106,40,44,48)); rep(smo,"smooth",620,400)
-    s.com("Slot  Knob",(20,120,120,16),(2,90,110,16))
+    s.com("Slot   Parameter",(20,120,120,16),(2,90,130,16))
     rset=s.obj("r fx.lfo.set",(400,20,80,22),0,1); rtn=s.obj("route #1",(400,50,60,22),2,2); s.c(rset,0,rtn,0)
-    keys=[f"r{r}{k}" for r in (1,2,3) for k in "skl"]
+    keys=[f"r{r}{k}" for r in (1,2,3) for k in "skl"]+[f"r{r}items" for r in (1,2,3)]+[f"r{r}kset" for r in (1,2,3)]+["on"]
     rk=s.obj("route "+" ".join(keys),(400,80,500,22),1,len(keys)+1); s.c(rtn,0,rk,0)
-    j=0
+    j=0; mitems=[]
     for r in (1,2,3):
         y=106+(r-1)*19
-        m1=menu(s,f"r{r}slot",["—"]+[str(k) for k in range(1,9)]+["File"],0,(20,150+r*30,40,15),(2,y,40,15)); rep(m1,f"r{r}s",20,450+r*30)
-        m2=menu(s,f"r{r}knob",[str(k) for k in range(1,17)],0,(70,150+r*30,40,15),(44,y,40,15)); rep(m2,f"r{r}k",140,450+r*30)
-        lb=ltext(s,f"r{r}learn","Learn",1,(120,150+r*30,46,15),(86,y,46,15)); nov(s); rep(lb,f"r{r}l",260,450+r*30)
+        m1=menu(s,f"r{r}slot",["—"]+[str(k) for k in range(1,9)]+["File"],0,(20,150+r*30,40,15),(2,y,38,15)); rep(m1,f"r{r}s",20,450+r*30)
+        m2=s.add("umenu",None,(70,150+r*30,64,18),(42,y,64,15),1,3,["int","",""],varname=f"r{r}knob",items=sum([[str(k),","] for k in range(1,18)],[])[:-1],fontsize=9.0,arrow=1)
+        rep(m2,f"r{r}k",140,450+r*30)
+        lb=ltext(s,f"r{r}learn","Learn",1,(120,150+r*30,46,15),(108,y,44,15)); nov(s); rep(lb,f"r{r}l",260,450+r*30)
         for o in (m1,m2,lb): s.c(rk,j,o,0); j+=1
+        mitems.append(m2)
+    s.c(rk,15,on,0)
+    for r,m2 in zip((1,2,3),mitems):
+        keep=s.obj("i",(760+r*120,320,30,22),2,1); s.c(m2,0,keep,1)
+        tl=s.obj("t b l b",(700+r*120,200,60,22),1,3,["bang","","bang"]); s.c(rk,9+(r-1),tl,0)
+        clr_=s.msg("clear",(760+r*120,230,40,22)); s.c(tl,2,clr_,0); s.c(clr_,0,m2,0)
+        it=s.obj("zl.iter 1",(700+r*120,230,60,22),2,2); s.c(tl,1,it,0)
+        pa=s.obj("prepend append",(700+r*120,260,100,22),1,1); s.c(it,0,pa,0); s.c(pa,0,m2,0)
+        s.c(tl,0,keep,0)
+        pss=s.obj("prepend set",(700+r*120,350,70,22),1,1); s.c(keep,0,pss,0); s.c(pss,0,m2,0)
+        s.c(rk,12+(r-1),keep,1); s.c(rk,12+(r-1),pss,0)
     # value bar
     rv=s.obj("r fx.lfo.val",(600,20,80,22),0,1); rv2=s.obj("route #1",(600,50,60,22),2,2); s.c(rv,0,rv2,0)
     bar=s.add("slider",None,(600,80,150,10),(2,166,150,8),1,1,[""],orientation=1,floatoutput=1,size=2.0,min=-1.0,ignoreclick=1)
@@ -815,7 +837,7 @@ def build_lfo():
     rd=s.obj("r fx.lfo.dump",(800,20,80,22),0,1); tb=s.obj("t b",(800,50,30,22),1,1,["bang"]); s.c(rd,0,tb,0)
     for b in s.boxes[:]:
         bb=b["box"]
-        if bb.get("maxclass") in ("live.dial","live.menu","live.text") : s.c(tb,0,bb["id"],0)
+        if bb.get("maxclass") in ("live.dial","live.menu","umenu") : s.c(tb,0,bb["id"],0)
     s.add("panel",None,(900,600,154,178),(0,0,154,178),1,0,border=1,rounded=0,background=1)
     s.save("fx.lfo.maxpat",[100,100,1200,900],pres=True)
 
@@ -843,6 +865,9 @@ def build_filectl():
         pt=s.obj(f"prepend #1 {i+1}",(100+i*90,210,80,22),1,1); s.c(d,0,pt,0); s.c(pt,0,stouch,0)
         psd=s.obj("prepend set",(100+i*90,560,70,22),1,1); s.c(rshow,i,psd,0); s.c(psd,0,d,0)
         s.c(dl,0,d,0)
+    flab=s.msg(" ".join(FILE_LABELS+["–"]*9),(600,80,400,22)); s.c(dl,0,flab,0)
+    pfl=s.obj("prepend #1",(600,110,70,22),1,1); s.c(flab,0,pfl,0); sfl=s.obj("s fx.labels",(600,140,70,22),1,0); s.c(pfl,0,sfl,0)
+    rlb=s.obj("r fx.labels.ask",(700,80,90,22),0,1); s.c(rlb,0,flab,0)
     s.add("panel",None,(900,600,100,20),(0,0,760,56),1,0,border=1,rounded=0,background=1)
     s.save("fx.filectl.maxpat",[100,100,1100,700],pres=True)
 
@@ -862,7 +887,7 @@ def build_main():
         p.com("▾",(2400,y,16,20),(14,y+2,16,20)); p.com(title,(2420,y,200,20),(30,y+2,200,20),fontface=1)
         if note: p.com(note,(2620,y,800,20),(240,y+2,900,20))
     # ---------- header ----------
-    p.com("FX PATCHER v12.5",(12,12,348,20),(12,12,348,20))
+    p.com("FX PATCHER v12.6",(12,12,348,20),(12,12,348,20))
     au=ltext(p,"audio","Audio",1,(12,34,84,18),(12,36,84,18)); nov(p)
     pn=ltext(p,"panic","Panic",0,(100,34,84,18),(100,36,84,18)); nov(p)
     clr=ltext(p,"clear","Clear all",0,(188,34,84,18),(188,36,84,18)); nov(p)
@@ -1146,10 +1171,12 @@ out2 = sr * gr;
     pbl=p.obj("prepend setbpm",(4700,70,100,22),1,1); p.c(nBpm,0,pbl,0); p.c(pbl,0,lfojs,0)
     pbbl=p.obj("prepend setbpb",(4800,70,100,22),1,1); p.c(nBpb,0,pbbl,0); p.c(pbbl,0,lfojs,0)
     smod=p.obj("s fx.mod",(4400,140,60,22),1,0); p.c(lfojs,0,smod,0)
+    rlab=p.obj("r fx.labels",(4900,40,70,22),0,1); plab=p.obj("prepend labels",(4900,70,90,22),1,1); p.c(rlab,0,plab,0); p.c(plab,0,lfojs,0)
     sset=p.obj("s fx.lfo.set",(4500,140,80,22),1,0); p.c(lfojs,1,sset,0)
     sval=p.obj("s fx.lfo.val",(4600,140,80,22),1,0); p.c(lfojs,2,sval,0)
     lbl=p.obj("loadbang",(4700,140,60,22),1,1); dll=p.obj("delay 1500",(4700,170,70,22),2,1); p.c(lbl,0,dll,0)
     sdump=p.obj("s fx.lfo.dump",(4700,200,90,22),1,0); p.c(dll,0,sdump,0)
+    dla=p.obj("delay 1200",(4800,170,70,22),2,1); p.c(lbl,0,dla,0); sask=p.obj("s fx.labels.ask",(4800,200,90,22),1,0); p.c(dla,0,sask,0)
     for k in range(16):
         px=10+(k%8)*158.4; py=MY+26+(k//8)*182
         p.add("bpatcher",None,(4400+k*160,300,154,178),(px,py,154,178),0,0,[],

@@ -10,6 +10,28 @@ for (var n = 1; n <= N; n++) {
     r: [{s:0,k:1,l:0},{s:0,k:1,l:0},{s:0,k:1,l:0}] };
 }
 var prev = {}, learn = null, active = {};
+var LAB = {};
+function defaultLabels() { var a = []; for (var i = 1; i <= 17; i++) a.push("" + i); return a; }
+function itemsFor(s) {
+  var src = LAB[s] || defaultLabels(), out = [];
+  for (var i = 0; i < 17; i++) {
+    var nm = src[i];
+    if (nm === undefined || nm === "–" || nm === "-") nm = "(" + (i + 1) + ")";
+    out.push(nm);
+  }
+  return out;
+}
+function sendItems(n, j) {
+  var r = L[n].r[j]; if (!r.s) return;
+  var it = itemsFor(r.s);
+  outlet(1, [n, "r" + (j + 1) + "items"].concat(it));
+}
+function labels() {
+  var a = arrayfromargs(arguments);
+  var s = a[0] | 0; if (s < 1) return;
+  LAB[s] = a.slice(1);
+  for (var n = 1; n <= N; n++) for (var j = 0; j < 3; j++) if (L[n].r[j].s === s) sendItems(n, j);
+}
 function setbpm(v) { if (v > 0) bpm = v; }
 function setbpb(v) { if (v > 0) bpb = v; }
 function list() {
@@ -20,7 +42,7 @@ function list() {
   var m = /^r([123])([skl])$/.exec(key);
   if (m) {
     var r = o.r[(m[1]|0) - 1];
-    if (m[2] === "s") r.s = v | 0;
+    if (m[2] === "s") { r.s = v | 0; sendItems(n, (m[1]|0) - 1); }
     else if (m[2] === "k") r.k = (v | 0) + 1;
     else {
       r.l = v | 0;

@@ -1221,6 +1221,75 @@
    {
     "box": {
      "id": "obj-53",
+     "maxclass": "message",
+     "numinlets": 2,
+     "numoutlets": 1,
+     "patching_rect": [
+      600.0,
+      80.0,
+      400.0,
+      22.0
+     ],
+     "text": "Speed Pitch Start Length Volume Width Tone Pan \u2013 \u2013 \u2013 \u2013 \u2013 \u2013 \u2013 \u2013 \u2013",
+     "outlettype": [
+      ""
+     ]
+    }
+   },
+   {
+    "box": {
+     "id": "obj-54",
+     "maxclass": "newobj",
+     "numinlets": 1,
+     "numoutlets": 1,
+     "patching_rect": [
+      600.0,
+      110.0,
+      70.0,
+      22.0
+     ],
+     "text": "prepend #1",
+     "outlettype": [
+      ""
+     ]
+    }
+   },
+   {
+    "box": {
+     "id": "obj-55",
+     "maxclass": "newobj",
+     "numinlets": 1,
+     "numoutlets": 0,
+     "patching_rect": [
+      600.0,
+      140.0,
+      70.0,
+      22.0
+     ],
+     "text": "s fx.labels"
+    }
+   },
+   {
+    "box": {
+     "id": "obj-56",
+     "maxclass": "newobj",
+     "numinlets": 0,
+     "numoutlets": 1,
+     "patching_rect": [
+      700.0,
+      80.0,
+      90.0,
+      22.0
+     ],
+     "text": "r fx.labels.ask",
+     "outlettype": [
+      ""
+     ]
+    }
+   },
+   {
+    "box": {
+     "id": "obj-57",
      "maxclass": "panel",
      "numinlets": 1,
      "numoutlets": 0,
@@ -1984,6 +2053,54 @@
      ],
      "destination": [
       "obj-49",
+      0
+     ]
+    }
+   },
+   {
+    "patchline": {
+     "source": [
+      "obj-12",
+      0
+     ],
+     "destination": [
+      "obj-53",
+      0
+     ]
+    }
+   },
+   {
+    "patchline": {
+     "source": [
+      "obj-53",
+      0
+     ],
+     "destination": [
+      "obj-54",
+      0
+     ]
+    }
+   },
+   {
+    "patchline": {
+     "source": [
+      "obj-54",
+      0
+     ],
+     "destination": [
+      "obj-55",
+      0
+     ]
+    }
+   },
+   {
+    "patchline": {
+     "source": [
+      "obj-56",
+      0
+     ],
+     "destination": [
+      "obj-53",
       0
      ]
     }
