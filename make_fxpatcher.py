@@ -552,8 +552,8 @@ st = floor(clamp(start, 0, 1) * (dim(lb) - len - 1));
 p = st + pos;
 xl = peek(lb, p, 0, interp="linear", boundmode="wrap");
 xr = peek(lb, p, 1, interp="linear", boundmode="wrap");
-keep = 1 - erase * 0.02;
 r = rec > 0.5;
+keep = r ? 1 - erase * 0.02 : 1;
 poke(lb, xl * keep + in1 * dub * r, floor(p), 0);
 poke(lb, xr * keep + in2 * dub * r, floor(p), 1);
 pos = wrap(pos + speed * (reverse > 0.5 ? -1 : 1), 0, len);
@@ -655,7 +655,7 @@ MODULES.update({
  "Grain":{"labels":lab("Size Density Pitch Spray Position Reverse Width Feedbk PSpray".split()),"defaults":dfl([0.55,0.6,0.5,0.3,0.15,0,0.7,0,0])},
  "Tape":{"labels":lab("Wow Flutter Age Hiss Drop Sat Tone Speed".split()),"defaults":dfl([0.3,0.2,0.3,0.1,0,0.3,0.6,0.5])},
  "Freq":{"labels":lab("Shift Fine Feedbk Delay Spread".split()),"defaults":dfl([0.55,0.5,0.3,0.05,0])},
- "Loop":{"labels":lab("Rec Length Speed Erase Dub Reverse Tone Start".split()),"defaults":dfl([0,0.6,0.5,0.1,1,0,1,0])},
+ "Loop":{"labels":lab("Rec Length Speed Erase Dub Reverse Tone Start".split()),"defaults":dfl([1,0.6,0.6667,0.1,1,0,1,0])},
  "Swell":{"labels":lab("Attack Thresh Sens Depth Hold".split()),"defaults":dfl([0.6,0.3,0.5,1,0.03])},
  "Filter":{"labels":lab("Cutoff Reso Type Drive Rate Depth Env EnvSpd Spread".split()),"defaults":dfl([0.6,0.3,0,0,0.3,0,0,0.3,0.5])},
  "Crush":{"labels":lab("Bits Rate Drive Tone Jitter Fold Level".split()),"defaults":dfl([0.5,0.3,0,1,0,0,0.5])},

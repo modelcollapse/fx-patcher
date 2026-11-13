@@ -56,7 +56,7 @@ The 15 effects:
 | Grain | Granular cloud |
 | Tape | Wow, flutter, age, hiss and dropouts |
 | Freq | Frequency shifter with feedback |
-| Loop | Live looper with overdub, speed and reverse |
+| Loop | Live looper. It records continuously while **Rec** is up; turn Rec down to hold and repeat the loop. Also has Length, Speed, Erase, Dub, Reverse, Tone and Start. |
 | Swell | Auto-swell, stepping in for a sidechain duck for now |
 | Filter | Multimode filter with LFO and envelope |
 | Crush | Bit and sample-rate reduction with fold |
