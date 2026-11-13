@@ -19,8 +19,9 @@ A standalone Max 9 modular effects rack for ambient work. You get eight stereo e
 5. Give it a sound source. Either:
    - **Drop a loop** (WAV/AIFF) onto the big **DROP A LOOP HERE** area, or press **Load** next to FILE. Set input **A** to **File**.
    - Or set input **A** or **B** to your interface inputs (1/2, 3/4, or a single mono input).
-6. **Patch it.** In the **Routing** grid, click a dot on the left (a source) and then a dot on the right (a destination) to draw a cable. Start with `A → Slot 1` and `Slot 1 → Master`. Click a cable to select it and press Delete to remove it.
-7. Choose an effect from the menu at the top of Slot 1.
+6. **Just listen first (optional):** press **Mon** next to A or B to hear that input dry on the outputs without any cables. Turn it off once you patch the input through effects, or you'll hear dry and wet together.
+7. **Patch it.** In the **Routing** grid, click a dot on the left (a source) and then a dot on the right (a destination) to draw a cable. Start with `A → Slot 1` and `Slot 1 → Master`. Click a cable to select it and press Delete to remove it.
+8. Choose an effect from the menu at the top of Slot 1.
 
 The **Out** meters (top right) show the signal actually leaving the patch on the outputs you picked. If **Master** moves but **Out** doesn't, check the Out menu. If both move and you hear nothing, check Max's *Options → Audio Status* and make sure your interface is the output device.
 

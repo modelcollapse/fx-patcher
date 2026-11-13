@@ -827,7 +827,7 @@ def build_main():
         p.com("▾",(2400,y,16,20),(14,y+2,16,20)); p.com(title,(2420,y,200,20),(30,y+2,200,20),fontface=1)
         if note: p.com(note,(2620,y,800,20),(240,y+2,900,20))
     # ---------- header ----------
-    p.com("FX PATCHER v12.3",(12,12,348,20),(12,12,348,20))
+    p.com("FX PATCHER v12.4",(12,12,348,20),(12,12,348,20))
     au=ltext(p,"audio","Audio",1,(12,34,84,18),(12,36,84,18)); nov(p)
     pn=ltext(p,"panic","Panic",0,(100,34,84,18),(100,36,84,18)); nov(p)
     clr=ltext(p,"clear","Clear all",0,(188,34,84,18),(188,36,84,18)); nov(p)
@@ -874,9 +874,9 @@ def build_main():
     # ---------- main area ----------
     p.com("INPUT",(12,78,128,20),(12,TOP,128,20))
     OPTS=["Off","1/2","3/4","1 mono","2 mono","3 mono","4 mono","File"]
-    p.com("A",(12,100,20,20),(12,TOP+22,20,20)); mA=menu(p,"srcA_in",OPTS,1,(56,100,128,15),(56,TOP+22,128,15))
+    p.com("A",(12,100,20,20),(12,TOP+22,20,20)); mA=menu(p,"srcA_in",OPTS,1,(56,100,92,15),(56,TOP+22,92,15))
     gA=hgain(p,"srcA",(12,126,172,26),(12,TOP+44,172,26))
-    p.com("B",(12,166,20,20),(12,TOP+84,20,20)); mB=menu(p,"srcB_in",OPTS,2,(56,166,128,15),(56,TOP+84,128,15))
+    p.com("B",(12,166,20,20),(12,TOP+84,20,20)); mB=menu(p,"srcB_in",OPTS,2,(56,166,92,15),(56,TOP+84,92,15))
     gB=hgain(p,"srcB",(12,192,172,26),(12,TOP+106,172,26))
     p.com("ROUTING",(188,78,172,20),(188,TOP,172,20))
     cp=p.add("crosspatch",None,(600,100,436,246),(188,TOP+24,436,246),1,2,["",""],embed=1,showgain=1,numins=10,numouts=9,
@@ -939,7 +939,17 @@ def build_main():
     vsum=p.sig("+~",(1500,870,40,22),2,1)
     limL=p.obj("omx.peaklim~",(1300,700,90,22),2,3,["signal","signal",""])
     limR=p.obj("omx.peaklim~",(1400,700,90,22),2,3,["signal","signal",""])
-    p.c(mxL,8,limL,0); p.c(mxR,8,limR,0); p.c(limL,0,gM,0); p.c(limR,0,gM,1)
+    monA=ltext(p,"monA","Mon",1,(152,100,32,15),(152,TOP+22,32,15)); nov(p)
+    monB=ltext(p,"monB","Mon",1,(152,166,32,15),(152,TOP+84,32,15)); nov(p)
+    sumL=p.sig("+~",(1300,660,40,22),2,1); sumR=p.sig("+~",(1400,660,40,22),2,1)
+    sumL2=p.sig("+~",(1300,680,40,22),2,1); sumR2=p.sig("+~",(1400,680,40,22),2,1)
+    p.c(mxL,8,sumL,0); p.c(mxR,8,sumR,0); p.c(sumL,0,sumL2,0); p.c(sumR,0,sumR2,0)
+    for j,(mon,gsrc,tl,tr) in enumerate([(monA,gA,sumL,sumR),(monB,gB,sumL2,sumR2)]):
+        x=1500+j*200
+        pk_=p.obj("pack f 20",(x,600,60,22),2,1); ln=p.sig("line~",(x,630,40,22),2,2); p.c(mon,0,pk_,0); p.c(pk_,0,ln,0)
+        mL=p.sig("*~",(x,660,40,22),2,1); mR=p.sig("*~",(x+50,660,40,22),2,1)
+        p.c(gsrc,0,mL,0); p.c(gsrc,1,mR,0); p.c(ln,0,mL,1); p.c(ln,0,mR,1); p.c(mL,0,tl,1); p.c(mR,0,tr,1)
+    p.c(sumL2,0,limL,0); p.c(sumR2,0,limR,0); p.c(limL,0,gM,0); p.c(limR,0,gM,1)
     om=p.obj("matrix~ 2 8",(1300,900,120,22),2,9,["signal"]*8+["list"])
     lr3=p.obj("loadmess ramp 20",(1430,870,110,22),1,1); p.c(lr3,0,om,0)
     p.c(gM,0,om,0); p.c(gM,1,om,1)
