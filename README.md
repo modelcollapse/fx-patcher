@@ -79,7 +79,7 @@ Each LFO card has:
 
 **Learn** is the quickest way to set a target. Press Learn on one of the target rows, then move any knob on a strip or in the Focus panel. The LFO switches itself on once it has a target.
 
-The knob you set is the centre point, and the LFO moves around it. Modulated knobs visibly swing so you can see what's happening. When several LFOs hit the same knob, their movements add together.
+The knob you set is the centre point, and the LFO moves around it. Any knob an LFO is targeting turns orange and visibly swings, so you can always see what's being modulated. When several LFOs hit the same knob, their movements add together.
 
 ## Scenes and the scene sequencer
 

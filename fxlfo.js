@@ -9,7 +9,7 @@ for (var n = 1; n <= N; n++) {
     ph: Math.random(), y: 0, sh: 0, a: 0, b: Math.random()*2-1, walk: 0,
     r: [{s:0,k:1,l:0},{s:0,k:1,l:0},{s:0,k:1,l:0}] };
 }
-var prev = {}, learn = null;
+var prev = {}, learn = null, active = {};
 function setbpm(v) { if (v > 0) bpm = v; }
 function setbpb(v) { if (v > 0) bpb = v; }
 function list() {
@@ -88,6 +88,8 @@ function bang() {
       acc[key] = (acc[key] || 0) + val;
     }
   }
+  for (var ka in acc) if (!active[ka]) { var pa = ka.split(" "); outlet(0, +pa[0], "hl", +pa[1], 1); active[ka] = 1; }
+  for (var kb in active) if (acc[kb] === undefined) { var pb = kb.split(" "); outlet(0, +pb[0], "hl", +pb[1], 0); delete active[kb]; }
   for (var k in acc) {
     if (prev[k] === undefined || Math.abs(prev[k] - acc[k]) > 0.0005) {
       var p = k.split(" "); outlet(0, +p[0], +p[1], acc[k]); prev[k] = acc[k];
