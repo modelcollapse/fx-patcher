@@ -900,8 +900,8 @@ def num(p,name,init,mn,mx,pr,pres,keep=False):
 def build_main():
     p=P(); W=1262.8
     TOP=146; FY=TOP+274; FCY=FY+92
-    FY2=FCY+116; FCY2=FY2+92
-    SY=FCY2+116; MY=SY+302; MH=26+2*182; RY=MY+MH+6
+    FY2=FCY+92; FCY2=FY2+92
+    SY=FCY2+64; MY=SY+302; MH=26+2*182; RY=MY+MH+6
     def sect(title,y,h,note=""):
         p.add("panel",None,(2400,y,W,h),(10,y,W,h),1,0,border=1,rounded=0,background=1)
         p.com("▾",(2400,y,16,20),(14,y+2,16,20)); p.com(title,(2420,y,200,20),(30,y+2,200,20),fontface=1)
@@ -1004,7 +1004,7 @@ out2 = sr * gr * env;
         shared fx.mod/fx.touch/fx.labels buses (same mechanism as an effect slot), so it
         shows up as its own LFO target."""
         hy=fy-24
-        ftop=hy-6; fbot=fcy+56+6
+        ftop=hy-4; fbot=fcy+56+4
         p.add("panel",None,(10,ftop-60+dy,W,fbot-ftop),(10,ftop,W,fbot-ftop),1,0,border=1,rounded=0,background=1,
               bordercolor=list(frame_color),bgcolor=[0.05,0.05,0.06,1.0])
         p.com(header,(16,341+dy,40,20),(16,hy,38,20))
