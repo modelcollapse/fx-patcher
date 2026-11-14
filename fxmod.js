@@ -37,6 +37,6 @@ function anything() {
   var a = arrayfromargs(messagename, arguments);
   if (a[0] === "mod" && a[1] === "hl") { var j = a[2] | 0; if (j >= 1 && j <= N) highlight(this.patcher, j, a[3] ? 1 : 0); return; }
   var i = a[1] | 0; if (i < 1 || i > N) return;
-  if (a[0] === "base") { base[i] = clip(+a[2] - mod[i]); last[i] = -1; send(i, 0); }
+  if (a[0] === "base") { base[i] = clip(+a[2] - mod[i]); last[i] = -1; send(i, 1); }
   else if (a[0] === "mod") { mod[i] = +a[2]; send(i, 1); }
 }
