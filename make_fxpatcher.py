@@ -175,13 +175,15 @@ out1 = sl*(1-sp) + sr*sp;
 out2 = sr*(1-sp) + sl*sp;
 """
 
-def gen_box(q,code,pr):
+def gen_box_n(q,code,pr,ins=2,outs=2):
     g=P()
-    cb=g.add("codebox",None,(50,60,600,700),None,2,2,["",""],code=code,fontface=0,fontname="<Monospaced>",fontsize=12.0)
-    a=g.obj("in 1",(50,20,40,22),0,1); b=g.obj("in 2",(600,20,40,22),0,1)
-    o=g.add("newobj","out 1",(50,780,40,22),None,1,0); o2=g.add("newobj","out 2",(600,780,40,22),None,1,0)
-    g.c(a,0,cb,0); g.c(b,0,cb,1); g.c(cb,0,o,0); g.c(cb,1,o2,0)
-    return q.add("newobj","gen~",pr,None,2,2,["signal","signal"],patcher=g.patcher([100,100,700,830],ns="dsp.gen"))
+    cb=g.add("codebox",None,(50,60,600,700),None,ins,outs,[""]*outs,code=code,fontface=0,fontname="<Monospaced>",fontsize=12.0)
+    ins_=[g.obj(f"in {i+1}",(50+i*180,20,40,22),0,1) for i in range(ins)]
+    outs_=[g.add("newobj",f"out {i+1}",(50+i*180,780,40,22),None,1,0) for i in range(outs)]
+    for i,o in enumerate(ins_): g.c(o,0,cb,i)
+    for i,o in enumerate(outs_): g.c(cb,i,o,0)
+    return q.add("newobj","gen~",pr,None,ins,outs,["signal"]*outs,patcher=g.patcher([100,100,700,830],ns="dsp.gen"))
+def gen_box(q,code,pr): return gen_box_n(q,code,pr,2,2)
 
 def build_drift():
     q,i1,i2,rt,o1,o2=module_base()
@@ -857,8 +859,8 @@ def build_lfo():
     s.save("fx.lfo.maxpat",[100,100,1200,900],pres=True)
 
 
-FILE_LABELS=["Speed","Pitch","Start","Length","Volume","Width","Tone","Pan"]
-FILE_DEF=[0.6667,0.5,0.0,1.0,0.8,0.5,1.0,0.5]
+FILE_LABELS=["Speed","Pitch","Start","Length","Volume","Width","Tone","Pan","Fade In","Fade Out"]
+FILE_DEF=[0.6667,0.5,0.0,1.0,0.8,0.5,1.0,0.5,0.05,0.05]
 def build_filectl():
     s=P()
     s.obj("autopattr",(900,900,70,22),1,4)
@@ -883,8 +885,8 @@ def build_filectl():
     flab=s.msg(" ".join(FILE_LABELS),(600,80,400,22)); s.c(dl,0,flab,0)
     pfl=s.obj("prepend #1",(600,110,70,22),1,1); s.c(flab,0,pfl,0); sfl=s.obj("s fx.labels",(600,140,70,22),1,0); s.c(pfl,0,sfl,0)
     rlb=s.obj("r fx.labels.ask",(700,80,90,22),0,1); s.c(rlb,0,flab,0)
-    s.add("panel",None,(900,600,100,20),(0,0,760,56),1,0,border=1,rounded=0,background=1)
-    s.save("fx.filectl.maxpat",[100,100,1100,700],pres=True)
+    s.add("panel",None,(900,600,100,20),(0,0,900,56),1,0,border=1,rounded=0,background=1)
+    s.save("fx.filectl.maxpat",[100,100,1200,700],pres=True)
 
 # ======================= MAIN (v10) =======================
 def nov(p): p.boxes[-1]["box"].pop("varname",None)
@@ -965,6 +967,10 @@ def build_main():
 Param fpan(0.5);
 Param fwid(1);
 Param ftone(20000);
+Param loopstart(0);
+Param loopend(1);
+Param fadein(0.05);
+Param fadeout(0.05);
 History sl(0);
 History sr(0);
 History gl(1);
@@ -980,8 +986,17 @@ gr = gr + (tr - gr) * 0.002;
 cf = 1 - exp(-twopi * clamp(ftone, 100, 20000) / samplerate);
 sl = sl + cf * (la - sl);
 sr = sr + cf * (ra - sr);
-out1 = sl * gl;
-out2 = sr * gr;
+// loop in/out envelope, from playlist~'s own position signal (in3 = clip.fraction)
+pos = in3 - floor(in3);
+len = max(0.001, loopend - loopstart);
+rel = clamp((pos - loopstart) / len, 0, 1);
+fi = clamp(fadein, 0, 0.5);
+fo = clamp(fadeout, 0, 0.5);
+envIn = fi > 0 ? clamp(rel / fi, 0, 1) : 1;
+envOut = fo > 0 ? clamp((1 - rel) / fo, 0, 1) : 1;
+env = min(envIn, envOut);
+out1 = sl * gl * env;
+out2 = sr * gr * env;
 """
     def file_block(fy,fcy,slot_id,header,drop_title,names,dy=0):
         """One drag-drop loop player + its File FX chain. slot_id addresses it on the
@@ -1003,16 +1018,19 @@ out2 = sr * gr;
         full=p.msg(f"script hide {names['dropbg']}, script hide {names['droplabel']}, script hide {names['dropzone']}, script show {names['player']}",(620,1070+dy,420,22))
         p.c(empty,0,tp,0); p.c(full,0,tp,0)
         lbe=p.obj("loadbang",(620,1010+dy,60,22),1,1); p.c(lbe,0,empty,0)
-        tdz=p.obj("t l b",(620,960+dy,40,22),1,2,["",""]); p.c(dz,0,tdz,0); p.c(tdz,1,full,0)
+        clm=p.msg("clear",(760,990+dy,40,22)); p.c(clm,0,pl,0)
+        # clear the player before loading, so a new drop/Load replaces the loop instead of piling onto it
+        tdz=p.obj("t l b b",(620,960+dy,40,22),1,3,["","",""]); p.c(dz,0,tdz,0)
+        p.c(tdz,2,clm,0); p.c(tdz,1,full,0)
         pap=p.obj("prepend append",(620,990+dy,100,22),1,1); p.c(tdz,0,pap,0); p.c(pap,0,pl,0)
         tld=p.obj("t b",(300,950+dy,30,22),1,1,["bang"]); od=p.obj("opendialog sound",(300,980+dy,110,22),1,2,["",""])
         p.c(fld_,0,tld,0); p.c(tld,0,od,0); p.c(od,0,tdz,0)
         tcl=p.obj("t b b",(760,960+dy,40,22),1,2); p.c(fclr,0,tcl,0)
-        clm=p.msg("clear",(760,990+dy,40,22)); p.c(tcl,1,clm,0); p.c(clm,0,pl,0); p.c(tcl,0,empty,0)
-        fg=gen_box(p,FGEN,(200,1050+dy,200,22))
-        p.c(pl,0,fg,0); p.c(pl,1,fg,1)
-        fc=p.add("bpatcher",None,(200,1200+dy,760,56),(10,fcy,760,56),0,1,[""],name="fx.filectl.maxpat",args=[slot_id],embed=0,viewvisibility=1,varname=names["filectl"])
-        frt=p.obj("route k1 k2 k3 k4 k5 k6 k7 k8",(200,1270+dy,300,22),1,9); p.c(fc,0,frt,0)
+        p.c(tcl,1,clm,0); p.c(tcl,0,empty,0)
+        fg=gen_box_n(p,FGEN,(200,1050+dy,200,22),3,2)
+        p.c(pl,0,fg,0); p.c(pl,1,fg,1); p.c(pl,2,fg,2)
+        fc=p.add("bpatcher",None,(200,1200+dy,900,56),(10,fcy,900,56),0,1,[""],name="fx.filectl.maxpat",args=[slot_id],embed=0,viewvisibility=1,varname=names["filectl"])
+        frt=p.obj("route k1 k2 k3 k4 k5 k6 k7 k8 k9 k10",(200,1270+dy,340,22),1,11); p.c(fc,0,frt,0)
         e1=p.obj("expr 0.25*exp($f1*2.0794)",(200,1300+dy,160,22),1,1); p.c(frt,0,e1,0)
         m1_=p.obj("prepend speed",(200,1330+dy,90,22),1,1); p.c(e1,0,m1_,0); p.c(m1_,0,pl,0)
         e2=p.obj("expr ($f1-0.5)*2400.",(380,1300+dy,130,22),1,1); p.c(frt,1,e2,0)
@@ -1029,14 +1047,18 @@ out2 = sr * gr;
         tu=p.obj("t f f",(640,1390+dy,40,22),1,2); p.c(u1,1,se,1); p.c(u1,0,tu,0); p.c(tu,1,se,0); p.c(tu,0,e34,0)
         pk2=p.obj("pack f f",(560,1420+dy,60,22),2,1); p.c(se,0,pk2,1); p.c(e34,0,pk2,0)
         m34=p.obj("prepend selection",(560,1450+dy,110,22),1,1); p.c(pk2,0,m34,0); p.c(m34,0,pl,0)
+        mls=p.obj("prepend loopstart",(640,1480+dy,110,22),1,1); p.c(e34,0,mls,0); p.c(mls,0,fg,0)
+        mle=p.obj("prepend loopend",(640,1510+dy,110,22),1,1); p.c(se,0,mle,0); p.c(mle,0,fg,0)
         e100=p.obj("* 100.",(560,1480+dy,60,22),2,1); p.c(se,0,e100,0)
         ei=p.obj("i",(560,1510+dy,40,22),2,1); p.c(e100,0,ei,0)
-        spe=p.obj("sprintf set End %d%%",(560,1540+dy,130,22),1,1); p.c(ei,0,spe,0)
-        endlab=p.com("End —",(780,1200+dy,150,20),(780,fcy+18,150,20)); p.c(spe,0,endlab,0)
+        spe=p.obj("sprintf set End %d pct",(560,1540+dy,130,22),1,1); p.c(ei,0,spe,0)
+        endlab=p.com("End —",(920,1200+dy,150,20),(920,fcy+18,150,20)); p.c(spe,0,endlab,0)
         e5=p.obj("* 1.25",(900,1300+dy,50,22),2,1); p.c(frt,4,e5,0); m5=p.obj("prepend fvol",(900,1330+dy,80,22),1,1); p.c(e5,0,m5,0); p.c(m5,0,fg,0)
         e6=p.obj("* 2.",(1000,1300+dy,40,22),2,1); p.c(frt,5,e6,0); m6=p.obj("prepend fwid",(1000,1330+dy,80,22),1,1); p.c(e6,0,m6,0); p.c(m6,0,fg,0)
         e7=p.obj("expr 100.*exp($f1*5.298)",(1100,1300+dy,150,22),1,1); p.c(frt,6,e7,0); m7=p.obj("prepend ftone",(1100,1330+dy,80,22),1,1); p.c(e7,0,m7,0); p.c(m7,0,fg,0)
         m8=p.obj("prepend fpan",(1260,1330+dy,80,22),1,1); p.c(frt,7,m8,0); p.c(m8,0,fg,0)
+        m9=p.obj("prepend fadein",(1360,1330+dy,90,22),1,1); p.c(frt,8,m9,0); p.c(m9,0,fg,0)
+        m10=p.obj("prepend fadeout",(1460,1330+dy,100,22),1,1); p.c(frt,9,m10,0); p.c(m10,0,fg,0)
         return fg
     adc=p.obj("adc~ 1 2 3 4",(700,900,100,22),1,4,["signal"]*4)
     im=p.obj("matrix~ 8 4",(700,960,140,22),8,5,["signal"]*4+["list"])
@@ -1276,7 +1298,7 @@ out2 = sr * gr;
     psf=p.obj("prepend setfolder",(4100,260,110,22),1,1); p.c(od,0,psf,0); p.c(psf,0,node,0)
     tob=p.obj("t b",(3750,90,30,22),1,1,["bang"]); omsg=p.msg("openfolder",(3790,90,70,22))
     p.c(opB,0,tob,0); p.c(tob,0,omsg,0); p.c(omsg,0,node,0)
-    lin=p.obj("loadbang",(3600,540,60,22),1,1); dl2=p.obj("delay 1500",(3600,565,70,22),2,1); mi=p.msg("init",(3600,585,40,22))
+    lin=p.obj("loadbang",(3600,540,60,22),1,1); dl2=p.obj("delay 3000",(3600,565,70,22),2,1); mi=p.msg("init",(3600,585,40,22))
     p.c(lin,0,dl2,0); p.c(dl2,0,mi,0); p.c(mi,0,node,0)
     # record start/stop: both buttons share state
     rr=p.obj("r fx.recbtn",(3600,800,80,22),0,1)

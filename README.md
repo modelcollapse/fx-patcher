@@ -73,13 +73,15 @@ There are two independent file players, **File A** and **File B**, stacked one a
 | **Loop** | Turns looping on or off. |
 | **Clear** | Empties the player and brings the drop zone back. |
 
-To pick which loop plays through which input, use the **A**/**B** source menus under INPUT: choose **File A** on one, **File B** on the other (or both on the same input to layer them, or swap them to switch — that's the A/B select). Routing from there into the slots works exactly as it does for any other input.
+To pick which loop plays through which input, use the **A**/**B** source menus under INPUT: choose **File A** on one, **File B** on the other (or both on the same input to layer them, or swap them to switch — that's the A/B select). Routing from there into the slots works exactly as it does for any other input. Neither input defaults to a file player (A starts on **1/2**, B on **3/4**), so if a loaded loop seems silent or stuck on one side, check that input's source menu is actually set to **File A** or **File B** — the loop players and the A/B inputs are independent, it's the source menu that connects them.
+
+Dropping a new file onto an already-loaded player, or pressing its **Load** again, replaces that loop — it doesn't stack the new file on top of the old one.
 
 The small spectrum display under inputs A/B shows the master output.
 
 ### File FX
 
-The row under each file player shapes that loop itself: **Speed** (tape-style, 1× in the middle), **Pitch** (±1 octave, keeps the tempo), **Start** and **Length** (which part of the file loops), **Volume**, **Width** (mono to extra-wide), **Tone** (low-pass) and **Pan**. All eight can be LFO targets: pick **File A** or **File B** in an LFO's Slot menu — the list stops at these 8, so you always see where it ends — or press Learn and move one of these knobs. Sweeping Start makes a scanning, granular-style loop.
+The row under each file player shapes that loop itself: **Speed** (tape-style, 1× in the middle), **Pitch** (±1 octave, keeps the tempo), **Start** and **Length** (which part of the file loops), **Volume**, **Width** (mono to extra-wide), **Tone** (low-pass), **Pan**, **Fade In** and **Fade Out** (each 0 to half the loop, smoothing the loop's boundary so it doesn't click or pop where it wraps). All ten can be LFO targets: pick **File A** or **File B** in an LFO's Slot menu — the list stops at these 10, so you always see where it ends — or press Learn and move one of these knobs. Sweeping Start makes a scanning, granular-style loop.
 
 Next to each File FX row, an **End** readout shows where the loop currently ends (as a % of the whole file), computed live from Start and Length — there's no separate End knob, but you can always see the point those two add up to.
 
@@ -132,7 +134,7 @@ Each LFO card has:
 
 **Learn** is the quickest way to set a target. Press Learn on one of the target rows, then move any knob on a strip or in the Focus panel. The LFO switches itself on once it has a target.
 
-The knob you set is the centre point, and the LFO moves around it. Any knob an LFO is targeting turns orange and visibly swings, both on the strip and in the Focus panel, so you can always see what's being modulated. Every effect knob (all 16 per slot), each slot's Mix, and all eight File FX knobs can be modulated. When several LFOs hit the same knob, their movements add together.
+The knob you set is the centre point, and the LFO moves around it. Any knob an LFO is targeting turns orange and visibly swings, both on the strip and in the Focus panel, so you can always see what's being modulated. Every effect knob (all 16 per slot), each slot's Mix, and all ten File FX knobs can be modulated. When several LFOs hit the same knob, their movements add together.
 
 ## Scenes and the scene sequencer
 
