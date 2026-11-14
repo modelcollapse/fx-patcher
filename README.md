@@ -81,7 +81,11 @@ The small spectrum display under inputs A/B shows the master output.
 
 ### File FX
 
-The row under each file player shapes that loop itself: **Speed** (tape-style, 1× in the middle), **Pitch** (±1 octave, keeps the tempo), **Start** and **Length** (which part of the file loops), **Volume**, **Width** (mono to extra-wide), **Tone** (low-pass), **Pan**, **Fade In** and **Fade Out** (each 0 to half the loop, smoothing the loop's boundary so it doesn't click or pop where it wraps). All ten can be LFO targets: pick **File A** or **File B** in an LFO's Slot menu — the list stops at these 10, so you always see where it ends — or press Learn and move one of these knobs. Sweeping Start makes a scanning, granular-style loop.
+The row under each file player shapes that loop itself: **Speed** (tape-style, 1× in the middle), **Pitch** (±1 octave, keeps the tempo), **Start** and **Length** (which part of the file loops), **Volume**, **Width** (mono to extra-wide), **Tone** (low-pass), **Pan**, **Fade In** and **Fade Out** (each 0 to half the loop, smoothing the loop's boundary so it doesn't click or pop where it wraps), and **End**. All eleven can be LFO targets: pick **File A** or **File B** in an LFO's Slot menu — the list stops at these 11, so you always see where it ends — or press Learn and move one of these knobs. Sweeping Start makes a scanning, granular-style loop.
+
+**End** trims Length's computed end point, independently of Length itself — at 1.00 it does nothing (the loop ends exactly where Length puts it), and turning it down pulls the end earlier. Because it's its own knob, you can LFO or Learn it directly, separately from Length. The small **End** readout next to the knobs always shows the loop's actual end point (as a % of the file), after that trim.
+
+Each file player and its File FX row sit inside one bordered card — red-bordered for File A, orange for File B, matching their cable color in Routing — with the waveform/drop area tinted separately from the knob row, so the two are easy to tell apart at a glance.
 
 Next to each File FX row, an **End** readout shows where the loop currently ends (as a % of the whole file), computed live from Start and Length — there's no separate End knob, but you can always see the point those two add up to.
 
@@ -134,7 +138,7 @@ Each LFO card has:
 
 **Learn** is the quickest way to set a target. Press Learn on one of the target rows, then move any knob on a strip or in the Focus panel. The LFO switches itself on once it has a target.
 
-The knob you set is the centre point, and the LFO moves around it. Any knob an LFO is targeting turns orange and visibly swings, both on the strip and in the Focus panel, so you can always see what's being modulated. Every effect knob (all 16 per slot), each slot's Mix, and all ten File FX knobs can be modulated. When several LFOs hit the same knob, their movements add together.
+The knob you set is the centre point, and the LFO moves around it. Any knob an LFO is targeting turns orange and visibly swings, both on the strip and in the Focus panel, so you can always see what's being modulated. Every effect knob (all 16 per slot), each slot's Mix, and all eleven File FX knobs can be modulated. When several LFOs hit the same knob, their movements add together.
 
 ## Scenes and the scene sequencer
 

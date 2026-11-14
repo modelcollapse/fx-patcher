@@ -859,8 +859,8 @@ def build_lfo():
     s.save("fx.lfo.maxpat",[100,100,1200,900],pres=True)
 
 
-FILE_LABELS=["Speed","Pitch","Start","Length","Volume","Width","Tone","Pan","Fade In","Fade Out"]
-FILE_DEF=[0.6667,0.5,0.0,1.0,0.8,0.5,1.0,0.5,0.05,0.05]
+FILE_LABELS=["Speed","Pitch","Start","Length","Volume","Width","Tone","Pan","Fade In","Fade Out","End"]
+FILE_DEF=[0.6667,0.5,0.0,1.0,0.8,0.5,1.0,0.5,0.05,0.05,1.0]
 def build_filectl():
     s=P()
     s.obj("autopattr",(900,900,70,22),1,4)
@@ -885,7 +885,8 @@ def build_filectl():
     flab=s.msg(" ".join(FILE_LABELS),(600,80,400,22)); s.c(dl,0,flab,0)
     pfl=s.obj("prepend #1",(600,110,70,22),1,1); s.c(flab,0,pfl,0); sfl=s.obj("s fx.labels",(600,140,70,22),1,0); s.c(pfl,0,sfl,0)
     rlb=s.obj("r fx.labels.ask",(700,80,90,22),0,1); s.c(rlb,0,flab,0)
-    s.add("panel",None,(900,600,100,20),(0,0,900,56),1,0,border=1,rounded=0,background=1)
+    s.add("panel",None,(900,600,100,20),(0,0,980,56),1,0,border=1,rounded=0,background=1,
+          bgcolor=[0.14,0.1,0.05,1.0],bordercolor=[0.55,0.42,0.18,1.0])
     s.save("fx.filectl.maxpat",[100,100,1200,700],pres=True)
 
 # ======================= MAIN (v10) =======================
@@ -899,8 +900,8 @@ def num(p,name,init,mn,mx,pr,pres,keep=False):
 def build_main():
     p=P(); W=1262.8
     TOP=146; FY=TOP+274; FCY=FY+92
-    FY2=FCY+62; FCY2=FY2+92
-    SY=FCY2+62; MY=SY+302; MH=26+2*182; RY=MY+MH+6
+    FY2=FCY+116; FCY2=FY2+92
+    SY=FCY2+116; MY=SY+302; MH=26+2*182; RY=MY+MH+6
     def sect(title,y,h,note=""):
         p.add("panel",None,(2400,y,W,h),(10,y,W,h),1,0,border=1,rounded=0,background=1)
         p.com("▾",(2400,y,16,20),(14,y+2,16,20)); p.com(title,(2420,y,200,20),(30,y+2,200,20),fontface=1)
@@ -998,18 +999,22 @@ env = min(envIn, envOut);
 out1 = sl * gl * env;
 out2 = sr * gr * env;
 """
-    def file_block(fy,fcy,slot_id,header,drop_title,names,dy=0):
+    def file_block(fy,fcy,slot_id,header,drop_title,names,frame_color,dy=0):
         """One drag-drop loop player + its File FX chain. slot_id addresses it on the
         shared fx.mod/fx.touch/fx.labels buses (same mechanism as an effect slot), so it
         shows up as its own LFO target."""
         hy=fy-24
+        ftop=hy-6; fbot=fcy+56+6
+        p.add("panel",None,(10,ftop-60+dy,W,fbot-ftop),(10,ftop,W,fbot-ftop),1,0,border=1,rounded=0,background=1,
+              bordercolor=list(frame_color),bgcolor=[0.05,0.05,0.06,1.0])
         p.com(header,(16,341+dy,40,20),(16,hy,38,20))
         fld_=ltext(p,names["load"],"Load",0,(56,342+dy,36,18),(56,hy,36,18)); nov(p)
         lp=ltext(p,names["loop"],"Loop",1,(94,342+dy,44,18),(94,hy,44,18)); nov(p)
         fclr=ltext(p,names["clear"],"Clear",0,(140,342+dy,44,18),(140,hy,44,18)); nov(p)
         pl=p.add("playlist~",None,(10,900+dy,600,88),(10,fy,W,88),1,5,["signal","signal","signal","",""],channelcount=2,varname=names["player"])
         plm=p.obj("prepend loop",(200,950+dy,90,22),1,1); p.c(lp,0,plm,0); p.c(plm,0,pl,0)
-        p.add("panel",None,(620,870+dy,600,20),(10,fy,W,88),1,0,border=1,rounded=0,background=1,varname=names["dropbg"])
+        p.add("panel",None,(620,870+dy,600,20),(10,fy,W,88),1,0,border=1,rounded=0,background=1,varname=names["dropbg"],
+              bordercolor=[0.25,0.45,0.55,1.0],bgcolor=[0.04,0.08,0.1,1.0])
         p.com(drop_title,(620,900+dy,600,50),(10,fy+22,W,44),fontsize=28.0,fontface=1,textjustification=1,
               ignoreclick=1,varname=names["droplabel"])
         dz=p.add("dropfile",None,(620,860+dy,600,30),(10,fy,W,88),1,2,["",""],varname=names["dropzone"])
@@ -1029,8 +1034,8 @@ out2 = sr * gr * env;
         p.c(tcl,1,clm,0); p.c(tcl,0,empty,0)
         fg=gen_box_n(p,FGEN,(200,1050+dy,200,22),3,2)
         p.c(pl,0,fg,0); p.c(pl,1,fg,1); p.c(pl,2,fg,2)
-        fc=p.add("bpatcher",None,(200,1200+dy,900,56),(10,fcy,900,56),0,1,[""],name="fx.filectl.maxpat",args=[slot_id],embed=0,viewvisibility=1,varname=names["filectl"])
-        frt=p.obj("route k1 k2 k3 k4 k5 k6 k7 k8 k9 k10",(200,1270+dy,340,22),1,11); p.c(fc,0,frt,0)
+        fc=p.add("bpatcher",None,(200,1200+dy,980,56),(10,fcy,980,56),0,1,[""],name="fx.filectl.maxpat",args=[slot_id],embed=0,viewvisibility=1,varname=names["filectl"])
+        frt=p.obj("route k1 k2 k3 k4 k5 k6 k7 k8 k9 k10 k11",(200,1270+dy,370,22),1,12); p.c(fc,0,frt,0)
         e1=p.obj("expr 0.25*exp($f1*2.0794)",(200,1300+dy,160,22),1,1); p.c(frt,0,e1,0)
         m1_=p.obj("prepend speed",(200,1330+dy,90,22),1,1); p.c(e1,0,m1_,0); p.c(m1_,0,pl,0)
         e2=p.obj("expr ($f1-0.5)*2400.",(380,1300+dy,130,22),1,1); p.c(frt,1,e2,0)
@@ -1045,14 +1050,18 @@ out2 = sr * gr * env;
         up34=p.obj("t l l",(560,1330+dy,40,22),1,2); p.c(pk34,0,up34,0)
         u1=p.obj("unpack f f",(560,1390+dy,70,22),1,2); p.c(up34,0,u1,0)
         tu=p.obj("t f f",(640,1390+dy,40,22),1,2); p.c(u1,1,se,1); p.c(u1,0,tu,0); p.c(tu,1,se,0); p.c(tu,0,e34,0)
-        pk2=p.obj("pack f f",(560,1420+dy,60,22),2,1); p.c(se,0,pk2,1); p.c(e34,0,pk2,0)
+        # End (k11) trims the Length-computed end point (1.0 = no trim, matches se exactly;
+        # 0.0 pulls the end back to just after Start) - independently modulatable, unlike se.
+        pkFE=p.obj("pak f f f",(640,1300+dy,70,22),3,1); p.c(e34,0,pkFE,0); p.c(se,0,pkFE,1); p.c(frt,10,pkFE,2)
+        fin=p.obj("expr $f1+0.02+$f3*($f2-$f1-0.02)",(640,1330+dy,280,22),3,1); p.c(pkFE,0,fin,0)
+        pk2=p.obj("pack f f",(560,1420+dy,60,22),2,1); p.c(fin,0,pk2,1); p.c(e34,0,pk2,0)
         m34=p.obj("prepend selection",(560,1450+dy,110,22),1,1); p.c(pk2,0,m34,0); p.c(m34,0,pl,0)
         mls=p.obj("prepend loopstart",(640,1480+dy,110,22),1,1); p.c(e34,0,mls,0); p.c(mls,0,fg,0)
-        mle=p.obj("prepend loopend",(640,1510+dy,110,22),1,1); p.c(se,0,mle,0); p.c(mle,0,fg,0)
-        e100=p.obj("* 100.",(560,1480+dy,60,22),2,1); p.c(se,0,e100,0)
+        mle=p.obj("prepend loopend",(640,1510+dy,110,22),1,1); p.c(fin,0,mle,0); p.c(mle,0,fg,0)
+        e100=p.obj("* 100.",(560,1480+dy,60,22),2,1); p.c(fin,0,e100,0)
         ei=p.obj("i",(560,1510+dy,40,22),2,1); p.c(e100,0,ei,0)
         spe=p.obj("sprintf set End %d pct",(560,1540+dy,130,22),1,1); p.c(ei,0,spe,0)
-        endlab=p.com("End —",(920,1200+dy,150,20),(920,fcy+18,150,20)); p.c(spe,0,endlab,0)
+        endlab=p.com("End —",(1000,1200+dy,150,20),(1000,fcy+18,150,20)); p.c(spe,0,endlab,0)
         e5=p.obj("* 1.25",(900,1300+dy,50,22),2,1); p.c(frt,4,e5,0); m5=p.obj("prepend fvol",(900,1330+dy,80,22),1,1); p.c(e5,0,m5,0); p.c(m5,0,fg,0)
         e6=p.obj("* 2.",(1000,1300+dy,40,22),2,1); p.c(frt,5,e6,0); m6=p.obj("prepend fwid",(1000,1330+dy,80,22),1,1); p.c(e6,0,m6,0); p.c(m6,0,fg,0)
         e7=p.obj("expr 100.*exp($f1*5.298)",(1100,1300+dy,150,22),1,1); p.c(frt,6,e7,0); m7=p.obj("prepend ftone",(1100,1330+dy,80,22),1,1); p.c(e7,0,m7,0); p.c(m7,0,fg,0)
@@ -1066,10 +1075,12 @@ out2 = sr * gr * env;
     for k in range(4): p.c(adc,k,im,k)
     fgA=file_block(FY,FCY,9,"FILE A","DROP LOOP A HERE  ·  or press Load",
         {"load":"file_load","loop":"file_loop","clear":"file_clear","player":"fileplayer",
-         "dropbg":"dropbg","droplabel":"droplabel","dropzone":"dropzone","filectl":"filectl"})
+         "dropbg":"dropbg","droplabel":"droplabel","dropzone":"dropzone","filectl":"filectl"},
+        SLOT_COLORS[0][0])
     fgB=file_block(FY2,FCY2,10,"FILE B","DROP LOOP B HERE  ·  or press Load",
         {"load":"file_load_b","loop":"file_loop_b","clear":"file_clear_b","player":"fileplayerB",
-         "dropbg":"dropbgB","droplabel":"droplabelB","dropzone":"dropzoneB","filectl":"filectlB"},dy=2000)
+         "dropbg":"dropbgB","droplabel":"droplabelB","dropzone":"dropzoneB","filectl":"filectlB"},
+        SLOT_COLORS[1][0],dy=2000)
     p.c(fgA,0,im,4); p.c(fgA,1,im,5); p.c(fgB,0,im,6); p.c(fgB,1,im,7)
     def subp(name,pr,ins,outs,inner):
         q=P(); il=[q.obj("inlet",(20+i*300,10,30,22),0,1) for i in range(ins)]
@@ -1180,7 +1191,10 @@ out2 = sr * gr * env;
     tst=p.obj("t i b",(2850,570,40,22),1,2); p.c(rseq,1,tst,0)
     dmp=p.msg("dumpconnections",(2850,600,100,22)); p.c(tst,1,dmp,0); p.c(dmp,0,cp,0)
     ser=p.obj("dict.serialize",(2850,630,90,22),1,1); p.c(cp,1,ser,0); p.c(ser,0,cab,0)
-    tst2=p.obj("t b b i",(2900,660,60,22),1,3); p.c(tst,0,tst2,0)
+    # give dumpconnections -> dict.serialize -> cables pattr a tick to land before storing,
+    # since crosspatch's dict output isn't guaranteed to resolve synchronously within the same event
+    stdl=p.obj("delay 20",(2870,630,70,22),2,1); p.c(tst,0,stdl,0)
+    tst2=p.obj("t b b i",(2900,660,60,22),1,3); p.c(stdl,0,tst2,0)
     pso=p.obj("prepend store",(2900,690,90,22),1,1); p.c(tst2,2,pso,0); p.c(pso,0,ps_,0)
     wr=p.msg("write fxscenes.json",(2950,720,120,22)); p.c(tst2,1,wr,0); p.c(wr,0,ps_,0)
     gsl=p.msg("getslotlist",(3000,750,80,22)); p.c(tst2,0,gsl,0); p.c(gsl,0,ps_,0)
