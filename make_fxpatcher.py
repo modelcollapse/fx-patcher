@@ -889,7 +889,7 @@ def build_main():
         p.com("▾",(2400,y,16,20),(14,y+2,16,20)); p.com(title,(2420,y,200,20),(30,y+2,200,20),fontface=1)
         if note: p.com(note,(2620,y,800,20),(240,y+2,900,20))
     # ---------- header ----------
-    p.com("FX PATCHER v12.6",(12,12,348,20),(12,12,348,20))
+    p.com("FX PATCHER v12.7",(12,12,348,20),(12,12,348,20))
     au=ltext(p,"audio","Audio",1,(12,34,84,18),(12,36,84,18)); nov(p)
     pn=ltext(p,"panic","Panic",0,(100,34,84,18),(100,36,84,18)); nov(p)
     clr=ltext(p,"clear","Clear all",0,(188,34,84,18),(188,36,84,18)); nov(p)

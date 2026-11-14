@@ -29,7 +29,7 @@
       348.0,
       20.0
      ],
-     "text": "FX PATCHER v12.6",
+     "text": "FX PATCHER v12.7",
      "presentation": 1,
      "presentation_rect": [
       12.0,
