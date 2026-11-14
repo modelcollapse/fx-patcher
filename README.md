@@ -66,6 +66,8 @@ One source can feed several destinations, and several sources can feed one. Slot
 
 There are two independent file players, **File A** and **File B**, stacked one above the other. Each has its own drop zone, its own Load/Loop/Clear buttons, and its own row of File FX knobs — so you can have two loops loaded and playing at once.
 
+![File A and File B, each in its own colored card](screenshots/file-players.jpg)
+
 | Control | What it does |
 |---|---|
 | Drop zone | Drag a loop onto it. The player appears once a file is loaded. |
