@@ -649,13 +649,14 @@
         "6",
         "7",
         "8",
-        "File"
+        "File A",
+        "File B"
        ],
        "parameter_initial": [
         0
        ],
        "parameter_initial_enable": 1,
-       "parameter_mmax": 9
+       "parameter_mmax": 10
       }
      }
     }
@@ -860,13 +861,14 @@
         "6",
         "7",
         "8",
-        "File"
+        "File A",
+        "File B"
        ],
        "parameter_initial": [
         0
        ],
        "parameter_initial_enable": 1,
-       "parameter_mmax": 9
+       "parameter_mmax": 10
       }
      }
     }
@@ -1071,13 +1073,14 @@
         "6",
         "7",
         "8",
-        "File"
+        "File A",
+        "File B"
        ],
        "parameter_initial": [
         0
        ],
        "parameter_initial_enable": 1,
-       "parameter_mmax": 9
+       "parameter_mmax": 10
       }
      }
     }

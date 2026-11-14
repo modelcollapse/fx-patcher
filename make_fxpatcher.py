@@ -813,7 +813,7 @@ def build_lfo():
     j=0; mitems=[]
     for r in (1,2,3):
         y=106+(r-1)*19
-        m1=menu(s,f"r{r}slot",["—"]+[str(k) for k in range(1,9)]+["File"],0,(20,150+r*30,40,15),(2,y,38,15)); rep(m1,f"r{r}s",20,450+r*30)
+        m1=menu(s,f"r{r}slot",["—"]+[str(k) for k in range(1,9)]+["File A","File B"],0,(20,150+r*30,40,15),(2,y,38,15)); rep(m1,f"r{r}s",20,450+r*30)
         m2=s.add("umenu",None,(70,150+r*30,64,18),(42,y,64,15),1,3,["int","",""],varname=f"r{r}knob",items=sum([[str(k),","] for k in range(1,18)],[])[:-1],fontsize=9.0,arrow=1)
         rep(m2,f"r{r}k",140,450+r*30)
         lb=ltext(s,f"r{r}learn","Learn",1,(120,150+r*30,46,15),(108,y,44,15)); nov(s); rep(lb,f"r{r}l",260,450+r*30)
@@ -881,7 +881,9 @@ def num(p,name,init,mn,mx,pr,pres,keep=False):
     return b
 def build_main():
     p=P(); W=1262.8
-    TOP=146; FY=TOP+274; FCY=FY+92; SY=FY+94+60; MY=SY+302; MH=26+2*182; RY=MY+MH+6
+    TOP=146; FY=TOP+274; FCY=FY+92
+    FY2=FCY+62; FCY2=FY2+92
+    SY=FCY2+62; MY=SY+302; MH=26+2*182; RY=MY+MH+6
     def sect(title,y,h,note=""):
         p.add("panel",None,(2400,y,W,h),(10,y,W,h),1,0,border=1,rounded=0,background=1)
         p.com("▾",(2400,y,16,20),(14,y+2,16,20)); p.com(title,(2420,y,200,20),(30,y+2,200,20),fontface=1)
@@ -933,7 +935,7 @@ def build_main():
     stepNow=p.com("",(3500,330,120,18),(1144,118,120,18))
     # ---------- main area ----------
     p.com("INPUT",(12,78,128,20),(12,TOP,128,20))
-    OPTS=["Off","1/2","3/4","1 mono","2 mono","3 mono","4 mono","File"]
+    OPTS=["Off","1/2","3/4","1 mono","2 mono","3 mono","4 mono","File A","File B"]
     p.com("A",(12,100,20,20),(12,TOP+22,20,20)); mA=menu(p,"srcA_in",OPTS,1,(56,100,92,15),(56,TOP+22,92,15))
     gA=hgain(p,"srcA",(12,126,172,26),(12,TOP+44,172,26))
     p.com("B",(12,166,20,20),(12,TOP+84,20,20)); mB=menu(p,"srcB_in",OPTS,2,(56,166,92,15),(56,TOP+84,92,15))
@@ -941,31 +943,6 @@ def build_main():
     p.com("ROUTING",(188,78,172,20),(188,TOP,172,20))
     cp=p.add("crosspatch",None,(600,100,436,246),(188,TOP+24,436,246),1,2,["",""],embed=1,showgain=1,numins=10,numouts=9,
         inlabels=["A","B"]+[f"Slot {k}" for k in range(1,9)],outlabels=[f"Slot {k}" for k in range(1,9)]+["Master"])
-    p.com("FILE",(16,341,40,20),(16,TOP+250,38,20))
-    fld_=ltext(p,"file_load","Load",0,(56,342,36,18),(56,TOP+250,36,18)); nov(p)
-    lp=ltext(p,"file_loop","Loop",1,(94,342,44,18),(94,TOP+250,44,18)); nov(p)
-    fclr=ltext(p,"file_clear","Clear",0,(140,342,44,18),(140,TOP+250,44,18)); nov(p)
-    pl=p.add("playlist~",None,(10,900,600,88),(10,FY,W,88),1,5,["signal","signal","signal","",""],channelcount=2,varname="fileplayer")
-    plm=p.obj("prepend loop",(200,950,90,22),1,1); p.c(lp,0,plm,0); p.c(plm,0,pl,0)
-    p.add("panel",None,(620,870,600,20),(10,FY,W,88),1,0,border=1,rounded=0,background=1,varname="dropbg")
-    drop=p.com("DROP A LOOP HERE  ·  or press Load",(620,900,600,50),(10,FY+22,W,44),fontsize=28.0,fontface=1,textjustification=1,
-               ignoreclick=1,varname="droplabel")
-    dz=p.add("dropfile",None,(620,860,600,30),(10,FY,W,88),1,2,["",""],varname="dropzone")
-    tp=p.obj("thispatcher",(620,1100,80,22),1,2)
-    empty=p.msg("script show dropbg, script show droplabel, script show dropzone, script hide fileplayer",(620,1040,420,22))
-    full=p.msg("script hide dropbg, script hide droplabel, script hide dropzone, script show fileplayer",(620,1070,420,22))
-    p.c(empty,0,tp,0); p.c(full,0,tp,0)
-    lbe=p.obj("loadbang",(620,1010,60,22),1,1); p.c(lbe,0,empty,0)
-    tdz=p.obj("t l b",(620,960,40,22),1,2,["",""]); p.c(dz,0,tdz,0); p.c(tdz,1,full,0)
-    pap=p.obj("prepend append",(620,990,100,22),1,1); p.c(tdz,0,pap,0); p.c(pap,0,pl,0)
-    tld=p.obj("t b",(300,950,30,22),1,1,["bang"]); od=p.obj("opendialog sound",(300,980,110,22),1,2,["",""])
-    p.c(fld_,0,tld,0); p.c(tld,0,od,0); p.c(od,0,tdz,0)
-    tcl=p.obj("t b b",(760,960,40,22),1,2); p.c(fclr,0,tcl,0)
-    clm=p.msg("clear",(760,990,40,22)); p.c(tcl,1,clm,0); p.c(clm,0,pl,0); p.c(tcl,0,empty,0)
-    adc=p.obj("adc~ 1 2 3 4",(700,900,100,22),1,4,["signal"]*4)
-    im=p.obj("matrix~ 6 4",(700,960,140,22),6,5,["signal"]*4+["list"])
-    lr=p.obj("loadmess ramp 30",(860,930,110,22),1,1); p.c(lr,0,im,0)
-    for k in range(4): p.c(adc,k,im,k)
     FGEN="""Param fvol(1);
 Param fpan(0.5);
 Param fwid(1);
@@ -988,42 +965,80 @@ sr = sr + cf * (ra - sr);
 out1 = sl * gl;
 out2 = sr * gr;
 """
-    fg=gen_box(p,FGEN,(200,1050,200,22))
-    p.c(pl,0,fg,0); p.c(pl,1,fg,1); p.c(fg,0,im,4); p.c(fg,1,im,5)
-    fc=p.add("bpatcher",None,(200,1200,760,56),(10,FCY,760,56),0,1,[""],name="fx.filectl.maxpat",args=[9],embed=0,viewvisibility=1,varname="filectl")
-    frt=p.obj("route k1 k2 k3 k4 k5 k6 k7 k8",(200,1270,300,22),1,9); p.c(fc,0,frt,0)
-    e1=p.obj("expr 0.25*exp($f1*2.0794)",(200,1300,160,22),1,1); p.c(frt,0,e1,0)
-    m1_=p.obj("prepend speed",(200,1330,90,22),1,1); p.c(e1,0,m1_,0); p.c(m1_,0,pl,0)
-    e2=p.obj("expr ($f1-0.5)*2400.",(380,1300,130,22),1,1); p.c(frt,1,e2,0)
-    t2=p.obj("t f f",(380,1330,40,22),1,2); p.c(e2,0,t2,0)
-    m2=p.obj("prepend pitchshiftcent",(380,1390,140,22),1,1); p.c(t2,0,m2,0); p.c(m2,0,pl,0)
-    ab=p.obj("expr abs($f1)>5",(440,1360,100,22),1,1); p.c(t2,1,ab,0)
-    ch=p.obj("change",(440,1390,50,22),3,3); p.c(ab,0,ch,0)
-    m2b=p.obj("prepend timestretch",(440,1420,120,22),1,1); p.c(ch,0,m2b,0); p.c(m2b,0,pl,0)
-    pk34=p.obj("pak f f",(560,1300,60,22),2,1); p.c(frt,2,pk34,0); p.c(frt,3,pk34,1)
-    e34=p.obj("expr min($f1\\,0.98)",(560,1330,110,22),1,1)
-    se=p.obj("expr min($f1\\,0.98) + max(0.02\\, $f2*(1.-min($f1\\,0.98)))",(560,1360,330,22),2,1)
-    up34=p.obj("t l l",(560,1330,40,22),1,2); p.c(pk34,0,up34,0)
-    u1=p.obj("unpack f f",(560,1390,70,22),1,2); p.c(up34,0,u1,0)
-    tu=p.obj("t f f",(640,1390,40,22),1,2); p.c(u1,1,se,1); p.c(u1,0,tu,0); p.c(tu,1,se,0); p.c(tu,0,e34,0)
-    pk2=p.obj("pack f f",(560,1420,60,22),2,1); p.c(se,0,pk2,1); p.c(e34,0,pk2,0)
-    m34=p.obj("prepend selection",(560,1450,110,22),1,1); p.c(pk2,0,m34,0); p.c(m34,0,pl,0)
-    e5=p.obj("* 1.25",(900,1300,50,22),2,1); p.c(frt,4,e5,0); m5=p.obj("prepend fvol",(900,1330,80,22),1,1); p.c(e5,0,m5,0); p.c(m5,0,fg,0)
-    e6=p.obj("* 2.",(1000,1300,40,22),2,1); p.c(frt,5,e6,0); m6=p.obj("prepend fwid",(1000,1330,80,22),1,1); p.c(e6,0,m6,0); p.c(m6,0,fg,0)
-    e7=p.obj("expr 100.*exp($f1*5.298)",(1100,1300,150,22),1,1); p.c(frt,6,e7,0); m7=p.obj("prepend ftone",(1100,1330,80,22),1,1); p.c(e7,0,m7,0); p.c(m7,0,fg,0)
-    m8=p.obj("prepend fpan",(1260,1330,80,22),1,1); p.c(frt,7,m8,0); p.c(m8,0,fg,0)
+    def file_block(fy,fcy,slot_id,header,drop_title,names,dy=0):
+        """One drag-drop loop player + its File FX chain. slot_id addresses it on the
+        shared fx.mod/fx.touch/fx.labels buses (same mechanism as an effect slot), so it
+        shows up as its own LFO target."""
+        hy=fy-24
+        p.com(header,(16,341+dy,40,20),(16,hy,38,20))
+        fld_=ltext(p,names["load"],"Load",0,(56,342+dy,36,18),(56,hy,36,18)); nov(p)
+        lp=ltext(p,names["loop"],"Loop",1,(94,342+dy,44,18),(94,hy,44,18)); nov(p)
+        fclr=ltext(p,names["clear"],"Clear",0,(140,342+dy,44,18),(140,hy,44,18)); nov(p)
+        pl=p.add("playlist~",None,(10,900+dy,600,88),(10,fy,W,88),1,5,["signal","signal","signal","",""],channelcount=2,varname=names["player"])
+        plm=p.obj("prepend loop",(200,950+dy,90,22),1,1); p.c(lp,0,plm,0); p.c(plm,0,pl,0)
+        p.add("panel",None,(620,870+dy,600,20),(10,fy,W,88),1,0,border=1,rounded=0,background=1,varname=names["dropbg"])
+        p.com(drop_title,(620,900+dy,600,50),(10,fy+22,W,44),fontsize=28.0,fontface=1,textjustification=1,
+              ignoreclick=1,varname=names["droplabel"])
+        dz=p.add("dropfile",None,(620,860+dy,600,30),(10,fy,W,88),1,2,["",""],varname=names["dropzone"])
+        tp=p.obj("thispatcher",(620,1100+dy,80,22),1,2)
+        empty=p.msg(f"script show {names['dropbg']}, script show {names['droplabel']}, script show {names['dropzone']}, script hide {names['player']}",(620,1040+dy,420,22))
+        full=p.msg(f"script hide {names['dropbg']}, script hide {names['droplabel']}, script hide {names['dropzone']}, script show {names['player']}",(620,1070+dy,420,22))
+        p.c(empty,0,tp,0); p.c(full,0,tp,0)
+        lbe=p.obj("loadbang",(620,1010+dy,60,22),1,1); p.c(lbe,0,empty,0)
+        tdz=p.obj("t l b",(620,960+dy,40,22),1,2,["",""]); p.c(dz,0,tdz,0); p.c(tdz,1,full,0)
+        pap=p.obj("prepend append",(620,990+dy,100,22),1,1); p.c(tdz,0,pap,0); p.c(pap,0,pl,0)
+        tld=p.obj("t b",(300,950+dy,30,22),1,1,["bang"]); od=p.obj("opendialog sound",(300,980+dy,110,22),1,2,["",""])
+        p.c(fld_,0,tld,0); p.c(tld,0,od,0); p.c(od,0,tdz,0)
+        tcl=p.obj("t b b",(760,960+dy,40,22),1,2); p.c(fclr,0,tcl,0)
+        clm=p.msg("clear",(760,990+dy,40,22)); p.c(tcl,1,clm,0); p.c(clm,0,pl,0); p.c(tcl,0,empty,0)
+        fg=gen_box(p,FGEN,(200,1050+dy,200,22))
+        p.c(pl,0,fg,0); p.c(pl,1,fg,1)
+        fc=p.add("bpatcher",None,(200,1200+dy,760,56),(10,fcy,760,56),0,1,[""],name="fx.filectl.maxpat",args=[slot_id],embed=0,viewvisibility=1,varname=names["filectl"])
+        frt=p.obj("route k1 k2 k3 k4 k5 k6 k7 k8",(200,1270+dy,300,22),1,9); p.c(fc,0,frt,0)
+        e1=p.obj("expr 0.25*exp($f1*2.0794)",(200,1300+dy,160,22),1,1); p.c(frt,0,e1,0)
+        m1_=p.obj("prepend speed",(200,1330+dy,90,22),1,1); p.c(e1,0,m1_,0); p.c(m1_,0,pl,0)
+        e2=p.obj("expr ($f1-0.5)*2400.",(380,1300+dy,130,22),1,1); p.c(frt,1,e2,0)
+        t2=p.obj("t f f",(380,1330+dy,40,22),1,2); p.c(e2,0,t2,0)
+        m2=p.obj("prepend pitchshiftcent",(380,1390+dy,140,22),1,1); p.c(t2,0,m2,0); p.c(m2,0,pl,0)
+        ab=p.obj("expr abs($f1)>5",(440,1360+dy,100,22),1,1); p.c(t2,1,ab,0)
+        ch=p.obj("change",(440,1390+dy,50,22),3,3); p.c(ab,0,ch,0)
+        m2b=p.obj("prepend timestretch",(440,1420+dy,120,22),1,1); p.c(ch,0,m2b,0); p.c(m2b,0,pl,0)
+        pk34=p.obj("pak f f",(560,1300+dy,60,22),2,1); p.c(frt,2,pk34,0); p.c(frt,3,pk34,1)
+        e34=p.obj("expr min($f1\\,0.98)",(560,1330+dy,110,22),1,1)
+        se=p.obj("expr min($f1\\,0.98) + max(0.02\\, $f2*(1.-min($f1\\,0.98)))",(560,1360+dy,330,22),2,1)
+        up34=p.obj("t l l",(560,1330+dy,40,22),1,2); p.c(pk34,0,up34,0)
+        u1=p.obj("unpack f f",(560,1390+dy,70,22),1,2); p.c(up34,0,u1,0)
+        tu=p.obj("t f f",(640,1390+dy,40,22),1,2); p.c(u1,1,se,1); p.c(u1,0,tu,0); p.c(tu,1,se,0); p.c(tu,0,e34,0)
+        pk2=p.obj("pack f f",(560,1420+dy,60,22),2,1); p.c(se,0,pk2,1); p.c(e34,0,pk2,0)
+        m34=p.obj("prepend selection",(560,1450+dy,110,22),1,1); p.c(pk2,0,m34,0); p.c(m34,0,pl,0)
+        e5=p.obj("* 1.25",(900,1300+dy,50,22),2,1); p.c(frt,4,e5,0); m5=p.obj("prepend fvol",(900,1330+dy,80,22),1,1); p.c(e5,0,m5,0); p.c(m5,0,fg,0)
+        e6=p.obj("* 2.",(1000,1300+dy,40,22),2,1); p.c(frt,5,e6,0); m6=p.obj("prepend fwid",(1000,1330+dy,80,22),1,1); p.c(e6,0,m6,0); p.c(m6,0,fg,0)
+        e7=p.obj("expr 100.*exp($f1*5.298)",(1100,1300+dy,150,22),1,1); p.c(frt,6,e7,0); m7=p.obj("prepend ftone",(1100,1330+dy,80,22),1,1); p.c(e7,0,m7,0); p.c(m7,0,fg,0)
+        m8=p.obj("prepend fpan",(1260,1330+dy,80,22),1,1); p.c(frt,7,m8,0); p.c(m8,0,fg,0)
+        return fg
+    adc=p.obj("adc~ 1 2 3 4",(700,900,100,22),1,4,["signal"]*4)
+    im=p.obj("matrix~ 8 4",(700,960,140,22),8,5,["signal"]*4+["list"])
+    lr=p.obj("loadmess ramp 30",(860,930,110,22),1,1); p.c(lr,0,im,0)
+    for k in range(4): p.c(adc,k,im,k)
+    fgA=file_block(FY,FCY,9,"FILE A","DROP LOOP A HERE  ·  or press Load",
+        {"load":"file_load","loop":"file_loop","clear":"file_clear","player":"fileplayer",
+         "dropbg":"dropbg","droplabel":"droplabel","dropzone":"dropzone","filectl":"filectl"})
+    fgB=file_block(FY2,FCY2,10,"FILE B","DROP LOOP B HERE  ·  or press Load",
+        {"load":"file_load_b","loop":"file_loop_b","clear":"file_clear_b","player":"fileplayerB",
+         "dropbg":"dropbgB","droplabel":"droplabelB","dropzone":"dropzoneB","filectl":"filectlB"},dy=2000)
+    p.c(fgA,0,im,4); p.c(fgA,1,im,5); p.c(fgB,0,im,6); p.c(fgB,1,im,7)
     def subp(name,pr,ins,outs,inner):
         q=P(); il=[q.obj("inlet",(20+i*300,10,30,22),0,1) for i in range(ins)]
         ol=[q.add("newobj","outlet",(20+i*120,560,30,22),None,1,0) for i in range(outs)]
         inner(q,il,ol)
         return p.add("newobj","p "+name,pr,None,ins,outs,[""]*outs,patcher=q.patcher([100,100,700,620]))
-    pairs=[None,(0,1),(2,3),(0,0),(1,1),(2,2),(3,3),(4,5)]
+    pairs=[None,(0,1),(2,3),(0,0),(1,1),(2,2),(3,3),(4,5),(6,7)]
     def picker_inner(q,il,ol):
         for j,outs in enumerate([(0,1),(2,3)]):
             x=20+j*300
-            sel=q.obj("sel 0 1 2 3 4 5 6 7",(x,50,170,22),2,9); q.c(il[j],0,sel,0)
+            sel=q.obj("sel 0 1 2 3 4 5 6 7 8",(x,50,190,22),2,10); q.c(il[j],0,sel,0)
             for k,pr in enumerate(pairs):
-                parts=[f"{i} {o} 0." for o in outs for i in range(6)]
+                parts=[f"{i} {o} 0." for o in outs for i in range(8)]
                 if pr: parts+=[f"{pr[0]} {outs[0]} 1.",f"{pr[1]} {outs[1]} 1."]
                 m=q.msg(", ".join(parts),(x,90+k*50,280,40)); q.c(sel,k,m,0); q.c(m,0,ol[0],0)
     pk=subp("input-picker",(700,930,110,22),2,1,picker_inner)
