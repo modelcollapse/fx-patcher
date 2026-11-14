@@ -744,6 +744,8 @@ def build_slot():
     ps17=s.obj("prepend set",(800,100,70,22),1,1); s.c(rshow,16,ps17,0); s.c(ps17,0,mixd,0)
     rmod=s.obj("r fx.mod",(1100,500,60,22),0,1); rtm=s.obj("route #1",(1100,530,60,22),2,2); s.c(rmod,0,rtm,0)
     pmod=s.obj("prepend mod",(1100,560,80,22),1,1); s.c(rtm,0,pmod,0); s.c(pmod,0,modjs,0)
+    rmid=s.obj("r fx.midi",(1100,590,60,22),0,1); rtmi=s.obj("route #1",(1100,620,60,22),2,2); s.c(rmid,0,rtmi,0)
+    pmid=s.obj("prepend base",(1100,650,80,22),1,1); s.c(rtmi,0,pmid,0); s.c(pmid,0,modjs,0)
     stouch=s.obj("s fx.touch",(1200,560,70,22),1,0); s.c(pt17,0,stouch,0)
     slab=s.obj("s fx.labels",(1300,700,70,22),1,0)
     rask=s.obj("r fx.labels.ask",(1400,600,90,22),0,1)
@@ -869,6 +871,8 @@ def build_filectl():
     rshow=s.obj("route "+" ".join(str(i) for i in range(1,17)),(20,530,500,22),1,17); s.c(modjs,1,rshow,0)
     rmod=s.obj("r fx.mod",(200,440,60,22),0,1); rtm=s.obj("route #1",(200,470,60,22),2,2); s.c(rmod,0,rtm,0)
     pmod=s.obj("prepend mod",(200,500,80,22),1,1); s.c(rtm,0,pmod,0); s.c(pmod,0,modjs,0)
+    rmid=s.obj("r fx.midi",(400,440,60,22),0,1); rtmi=s.obj("route #1",(400,470,60,22),2,2); s.c(rmid,0,rtmi,0)
+    pmid=s.obj("prepend base",(400,500,80,22),1,1); s.c(rtmi,0,pmid,0); s.c(pmid,0,modjs,0)
     stouch=s.obj("s fx.touch",(300,500,70,22),1,0)
     s.com("FILE FX",(20,20,80,20),(4,2,80,20),fontface=1)
     s.com("LFO target: File · Learn works here too",(20,40,260,20),(4,22,170,32),fontsize=10.0)
@@ -907,7 +911,7 @@ def build_main():
         p.com("▾",(2400,y,16,20),(14,y+2,16,20)); p.com(title,(2420,y,200,20),(30,y+2,200,20),fontface=1)
         if note: p.com(note,(2620,y,800,20),(240,y+2,900,20))
     # ---------- header ----------
-    p.com("FX PATCHER v13.0",(12,12,348,20),(12,12,348,20))
+    p.com("FX PATCHER v13.1",(12,12,348,20),(12,12,348,20))
     au=ltext(p,"audio","Audio",1,(12,34,84,18),(12,36,84,18)); nov(p)
     pn=ltext(p,"panic","Panic",0,(100,34,84,18),(100,36,84,18)); nov(p)
     clr=ltext(p,"clear","Clear all",0,(188,34,84,18),(188,36,84,18)); nov(p)
@@ -923,6 +927,10 @@ def build_main():
     p.com("Beats/bar",(2540,180,60,18),(180,74,60,18))
     nBpb=num(p,"beats",4,1,16,(2610,180,30,15),(246,76,30,15))
     p.com("Used by the LFOs' Sync rates",(2650,180,220,18),(290,76,220,18),fontsize=10.0)
+    p.com("MIDI",(2700,180,36,20),(560,74,36,20),fontface=1)
+    midiLearn=ltext(p,"midi_learn","Learn",1,(2740,180,56,18),(600,74,56,18)); nov(p)
+    midiClear=ltext(p,"midi_clear","Clear MIDI",0,(2800,180,90,18),(1140,74,110,18)); nov(p)
+    midiStat=p.com("MIDI Learn off (0 mapped)",(2900,180,420,18),(662,74,470,18),fontsize=10.0)
     # ---------- main area ----------
     p.com("INPUT",(12,78,128,20),(12,TOP,128,20))
     OPTS=["Off","1/2","3/4","File A","File B"]
@@ -1152,6 +1160,34 @@ out2 = sr * gr * env;
         ps2=p.obj("prepend set",(1600+i*60,530,70,22),1,1); p.c(rt,2+i,ps2,0); p.c(ps2,0,d,0)
         pn2=p.obj(f"prepend {i+1}",(1600+i*60,520,60,22),1,1); p.c(d,0,pn2,0); p.c(pn2,0,sout,0)
     p.com("Knobs 1–8 mirror the strip · 9–16 live only here",(1600,600,300,20),(650,TOP+240,400,20))
+    # ---------- MIDI learn ----------
+    # Maps any incoming MIDI CC to any knob, over the same id/knob addressing the LFOs
+    # use. A learned CC sets that knob's base value directly (fx.midi bus -> "base" in
+    # each slot/filectl instance), independent of and stacking with LFO modulation.
+    midijs=p.obj("v8 fxmidimap.js",(5000,100,100,22),1,3)
+    smidi=p.obj("s fx.midi",(5000,140,70,22),1,0); p.c(midijs,0,smidi,0)
+    ci=p.obj("ctlin",(5000,180,120,22),0,3,["int","int","int"])
+    pkc=p.obj("pack 0 0 0",(5000,210,80,22),3,1)
+    p.c(ci,2,pkc,2); p.c(ci,1,pkc,1); p.c(ci,0,pkc,0)
+    pcc=p.obj("prepend cc",(5000,240,90,22),1,1); p.c(pkc,0,pcc,0); p.c(pcc,0,midijs,0)
+    pml=p.obj("prepend learn",(5150,180,90,22),1,1); p.c(midiLearn,0,pml,0); p.c(pml,0,midijs,0)
+    rtouch2=p.obj("r fx.touch",(5150,220,70,22),0,1); ptouch2=p.obj("prepend touch",(5150,250,90,22),1,1)
+    p.c(rtouch2,0,ptouch2,0); p.c(ptouch2,0,midijs,0)
+    rlab2=p.obj("r fx.labels",(5150,290,70,22),0,1); plab2=p.obj("prepend labels",(5150,320,90,22),1,1)
+    p.c(rlab2,0,plab2,0); p.c(plab2,0,midijs,0)
+    pms=p.obj("prepend set",(5300,100,80,22),1,1); p.c(midijs,2,pms,0); p.c(pms,0,midiStat,0)
+    mcoll=p.obj("coll fxmidimap_data",(5000,400,160,22),1,3,["","",""])
+    plist=p.obj("prepend list",(5000,370,90,22),1,1); p.c(midijs,1,plist,0); p.c(plist,0,mcoll,0)
+    pwr=p.obj("prepend dumpaddr",(5150,430,110,22),1,1); p.c(mcoll,1,pwr,0); p.c(pwr,0,midijs,0)
+    pdt=p.obj("prepend dumpdata",(5000,430,110,22),1,1); p.c(mcoll,0,pdt,0); p.c(pdt,0,midijs,0)
+    tcl2=p.obj("t b b",(5150,100,40,22),1,2); p.c(midiClear,0,tcl2,0)
+    clmm=p.msg("clearmap",(5150,130,70,22)); p.c(tcl2,0,clmm,0); p.c(clmm,0,midijs,0)
+    clmc=p.msg("clear",(5220,130,50,22)); p.c(tcl2,1,clmc,0); p.c(clmc,0,mcoll,0)
+    lbm=p.obj("loadbang",(5000,460,60,22),1,1); dlm=p.obj("delay 600",(5000,490,70,22),2,1); p.c(lbm,0,dlm,0)
+    rdm=p.msg("read fxmidimap.txt",(5000,520,150,22)); p.c(dlm,0,rdm,0); p.c(rdm,0,mcoll,0)
+    # coll's 3rd outlet bangs once the read has actually finished - wait for that instead
+    # of assuming "read" completes synchronously before sending "dump"
+    dpm=p.msg("dump",(5000,550,50,22)); p.c(mcoll,2,dpm,0); p.c(dpm,0,mcoll,0)
     # ---------- modulation placeholder ----------
     sect("MODULATION",MY,MH,"16 LFOs · each can drive 3 knobs · press Learn, then move any knob on a strip or in Focus")
     lfojs=p.obj("v8 fxlfo.js",(4400,100,90,22),1,3)

@@ -1,6 +1,6 @@
 # FX Patcher
 
-A self-contained Max 9 modular effects rack for ambient work. You get eight stereo effect slots, routing you patch with cables, sixteen LFOs, and multitrack recording. Everything is stock Max and ABL objects, so there are no third-party externals or VSTs.
+A self-contained Max 9 modular effects rack for ambient work. You get eight stereo effect slots, routing you patch with cables, sixteen LFOs, MIDI Learn on every knob, and multitrack recording. Everything is stock Max and ABL objects, so there are no third-party externals or VSTs.
 
 ![FX Patcher overview](screenshots/overview.jpg)
 
@@ -43,6 +43,20 @@ You should now hear the loop through Shimmer, and the **Master** and **Out** met
 | **Out menu** | Which output pair to use: 1/2, 3/4, 5/6 or 7/8. |
 
 Below that is a **Tempo** row — **BPM** and **Beats/bar** — used only by the LFOs' Sync rates (8 bars down to 1/16). There's no scene or sequencer system; the patch is purely live-performance now, with whatever you've patched and dialed in at any moment.
+
+### MIDI Learn
+
+The same row has MIDI controls, for mapping a MIDI controller to any knob in the patch:
+
+1. Connect your controller before or after opening the patch — no device selection needed, it listens to all connected MIDI input.
+2. Press **Learn**. The status text prompts you to touch a knob.
+3. Touch (or just click) the knob you want to map — any of the 16 per slot, each slot's Mix, or any File FX knob.
+4. Move the control on your MIDI controller you want mapped to it. The status text confirms the mapping and you're ready for the next one — stay in Learn mode and repeat for as many knobs as you like.
+5. Press **Learn** again to leave learn mode. Already-mapped controls keep working whether Learn is on or off.
+
+**Clear MIDI** wipes every mapping. Mappings are saved automatically (to `fxmidimap.txt`, in coll's own format) and reloaded the next time you open the patch — unlike everything else in the patch, which doesn't persist.
+
+A mapped MIDI control sets a knob's base value directly, the same as turning it by hand — it stacks with LFO modulation on the same knob exactly the way manual turning does. Only knobs are mappable (not Bypass, Audio, menus, or other buttons).
 
 ## Inputs
 
@@ -185,6 +199,7 @@ There's no scene or save/recall system — this is a purely live-performance pat
 | `fx.filectl.maxpat` | File FX knob row, used twice (LFO targets "File A" and "File B") |
 | `fxm.*.maxpat` | The effect modules, loaded into each slot |
 | `fxlfo.js` | LFO engine |
+| `fxmidimap.js` | MIDI Learn engine |
 | `fxmod.js` | Per-slot "knob + LFO" combiner |
 | `fxrec.js` | Recorder take folders and settings |
 | `fxtest.maxpat` | Self-test: runs every effect on a test tone and prints each one's output level to the Max Console |
