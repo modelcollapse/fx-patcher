@@ -1024,9 +1024,11 @@ out2 = sr * gr * env;
         p.c(empty,0,tp,0); p.c(full,0,tp,0)
         lbe=p.obj("loadbang",(620,1010+dy,60,22),1,1); p.c(lbe,0,empty,0)
         clm=p.msg("clear",(760,990+dy,40,22)); p.c(clm,0,pl,0)
-        # clear the player before loading, so a new drop/Load replaces the loop instead of piling onto it
-        tdz=p.obj("t l b b",(620,960+dy,40,22),1,3,["","",""]); p.c(dz,0,tdz,0)
-        p.c(tdz,2,clm,0); p.c(tdz,1,full,0)
+        lon=p.msg("1",(680,930+dy,30,22)); p.c(lon,0,lp,0)
+        # turn Loop on and clear the player before loading, so a new drop/Load starts looping
+        # right away instead of needing a manual click, and replaces the old loop instead of piling onto it
+        tdz=p.obj("t l b b b",(620,960+dy,40,22),1,4,["","","",""]); p.c(dz,0,tdz,0)
+        p.c(tdz,3,lon,0); p.c(tdz,2,clm,0); p.c(tdz,1,full,0)
         pap=p.obj("prepend append",(620,990+dy,100,22),1,1); p.c(tdz,0,pap,0); p.c(pap,0,pl,0)
         tld=p.obj("t b",(300,950+dy,30,22),1,1,["bang"]); od=p.obj("opendialog sound",(300,980+dy,110,22),1,2,["",""])
         p.c(fld_,0,tld,0); p.c(tld,0,od,0); p.c(od,0,tdz,0)

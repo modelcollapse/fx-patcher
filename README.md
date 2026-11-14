@@ -70,7 +70,7 @@ There are two independent file players, **File A** and **File B**, stacked one a
 |---|---|
 | Drop zone | Drag a loop onto it. The player appears once a file is loaded. |
 | **Load** | Opens a file picker instead of dragging. |
-| **Loop** | Turns looping on or off. |
+| **Loop** | Turns looping on or off. Switches on automatically whenever you drop a file or press Load. |
 | **Clear** | Empties the player and brings the drop zone back. |
 
 To pick which loop plays through which input, use the **A**/**B** source menus under INPUT: choose **File A** on one, **File B** on the other (or both on the same input to layer them, or swap them to switch — that's the A/B select). Routing from there into the slots works exactly as it does for any other input. Neither input defaults to a file player (A starts on **1/2**, B on **3/4**), so if a loaded loop seems silent or stuck on one side, check that input's source menu is actually set to **File A** or **File B** — the loop players and the A/B inputs are independent, it's the source menu that connects them.
