@@ -22,8 +22,8 @@ If a strip or the Max Console complains that it can't find a `fxm.…` or `.js` 
 
 1. Press **Audio** (top left). It turns orange when audio is running.
 2. Check that the **Out** menu (top right) matches the outputs your speakers are on. The default is 1/2.
-3. Drag a WAV or AIFF loop onto **DROP A LOOP HERE**, or press **Load** next to FILE. It starts playing.
-4. Set input **A** to **File**.
+3. Drag a WAV or AIFF loop onto **DROP LOOP A HERE**, or press **Load** next to FILE A. It starts playing.
+4. Set input **A** to **File A**.
 5. In **Routing**, click **A** on the left, then **Slot 1** on the right. That draws a cable. Then click **Slot 1** on the left and **Master** on the right.
 6. Choose an effect from Slot 1's menu, for example **Shimmer**.
 
@@ -49,7 +49,7 @@ You should now hear the loop through Shimmer, and the **Master** and **Out** met
 
 - **1/2** or **3/4**: a stereo input pair
 - **1 mono** to **4 mono**: a single input, sent to both sides
-- **File**: the file player
+- **File A** / **File B**: either of the two file players (see below)
 - **Off**
 
 Under each menu is a gain fader with a meter. **Mon** plays that input straight to the outputs, with no cables, so you can check the input is working. Turn Mon off once the input goes through effects, or you'll hear dry and wet together.
@@ -63,7 +63,9 @@ The **Routing** grid works like a patch bay. Sources are on the left (A, B and t
 
 One source can feed several destinations, and several sources can feed one. Slots can feed each other in any order, including feedback loops.
 
-## The file player
+## The file players
+
+There are two independent file players, **File A** and **File B**, stacked one above the other. Each has its own drop zone, its own Load/Loop/Clear buttons, and its own row of File FX knobs — so you can have two loops loaded and playing at once.
 
 | Control | What it does |
 |---|---|
@@ -72,11 +74,13 @@ One source can feed several destinations, and several sources can feed one. Slot
 | **Loop** | Turns looping on or off. |
 | **Clear** | Empties the player and brings the drop zone back. |
 
+To pick which loop plays through which input, use the **A**/**B** source menus under INPUT: choose **File A** on one, **File B** on the other (or both on the same input to layer them, or swap them to switch — that's the A/B select). Routing from there into the slots works exactly as it does for any other input.
+
 The small spectrum display under inputs A/B shows the master output.
 
 ### File FX
 
-The row under the file player shapes the loop itself: **Speed** (tape-style, 1× in the middle), **Pitch** (±1 octave, keeps the tempo), **Start** and **Length** (which part of the file loops), **Volume**, **Width** (mono to extra-wide), **Tone** (low-pass) and **Pan**. All eight can be LFO targets: pick **File** in an LFO's Slot menu, or press Learn and move one of these knobs. Sweeping Start makes a scanning, granular-style loop.
+The row under each file player shapes that loop itself: **Speed** (tape-style, 1× in the middle), **Pitch** (±1 octave, keeps the tempo), **Start** and **Length** (which part of the file loops), **Volume**, **Width** (mono to extra-wide), **Tone** (low-pass) and **Pan**. All eight can be LFO targets: pick **File A** or **File B** in an LFO's Slot menu, or press Learn and move one of these knobs. Sweeping Start makes a scanning, granular-style loop.
 
 ## Effect slots
 
@@ -123,7 +127,7 @@ Each LFO card has:
 - **Sync:** Free (uses **Rate** in Hz), or 8 bars down to 1/16, including triplets. Sync follows the BPM box.
 - **Depth:** a negative value inverts the LFO
 - **Smooth:** softens steps and jumps
-- **Three targets:** each target picks a slot (1–8, or **File** for the file player) and a parameter **by name**. The list follows the effect loaded in that slot, plus **Mix**.
+- **Three targets:** each target picks a slot (1–8, or **File A**/**File B** for the two file players) and a parameter **by name**. The list follows the effect loaded in that slot, plus **Mix**.
 
 **Learn** is the quickest way to set a target. Press Learn on one of the target rows, then move any knob on a strip or in the Focus panel. The LFO switches itself on once it has a target.
 
@@ -182,7 +186,7 @@ Each armed source records its own WAV file. Every take gets its own dated folder
 | `fxpatcher.maxpat` | Main patch (open this) |
 | `fx.slot.maxpat` | One effect strip, used 8 times |
 | `fx.lfo.maxpat` | One LFO card, used 16 times |
-| `fx.filectl.maxpat` | File FX knob row (LFO target "File") |
+| `fx.filectl.maxpat` | File FX knob row, used twice (LFO targets "File A" and "File B") |
 | `fxm.*.maxpat` | The effect modules, loaded into each slot |
 | `fxseq.js` | Scenes and sequencer |
 | `fxlfo.js` | LFO engine |
