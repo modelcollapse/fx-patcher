@@ -1,31 +1,67 @@
 # FX Patcher
 
-A standalone Max 9 modular effects rack for ambient work. You get eight stereo effect slots, routing you patch with cables, sixteen LFOs, scenes with a scene sequencer, and multitrack recording. Everything is stock Max and ABL objects, so there are no third-party externals or VSTs.
+A self-contained Max 9 modular effects rack for ambient work. You get eight stereo effect slots, routing you patch with cables, sixteen LFOs, scenes with a scene sequencer, and multitrack recording. Everything is stock Max and ABL objects, so there are no third-party externals or VSTs.
 
 ![FX Patcher overview](screenshots/overview.jpg)
 
 ## Requirements
 
-- Max 9 (the scene and LFO engines use the `v8` JavaScript object, and the recorder uses `node.script`)
-- An audio interface. It's set up for an SSL 12 (inputs 1–4, outputs 1–8), but any interface works.
-- 44.1 kHz is fine
+- **Max 9** on macOS. It needs Max 9 because it uses `v8` JavaScript, `node.script` and the ABL objects that ship with Max 9. Windows hasn't been tested.
+- An **audio interface**. It's set up for an SSL 12 (inputs 1–4, outputs 1–8), but any interface works. Without one you can still play loops through your Mac's speakers.
+- Any sample rate works, and 44.1 kHz is fine. Set it in Max under *Options → Audio Status*.
 
-## Getting started
+## Install
 
-1. Download or clone this repo and keep all the files together in one folder.
-2. Open `fxpatcher.maxpat` in Max. It opens in presentation mode.
-3. Press **Audio** (top left) to start sound.
-4. Pick the output pair with the **Out** menu (top right). The default is 1/2.
-5. Give it a sound source. Either:
-   - **Drop a loop** (WAV/AIFF) onto the big **DROP A LOOP HERE** area, or press **Load** next to FILE. Set input **A** to **File**.
-   - Or set input **A** or **B** to your interface inputs (1/2, 3/4, or a single mono input).
-6. **Just listen first (optional):** press **Mon** next to A or B to hear that input dry on the outputs without any cables. Turn it off once you patch the input through effects, or you'll hear dry and wet together.
-7. **Patch it.** In the **Routing** grid, click a dot on the left (a source) and then a dot on the right (a destination) to draw a cable. Start with `A → Slot 1` and `Slot 1 → Master`. Click a cable to select it and press Delete to remove it.
-8. Choose an effect from the menu at the top of Slot 1.
+1. Download the latest release from the **[Releases page](../../releases)** (the *Source code (zip)* file), or click **Code → Download ZIP** on the main page.
+2. Unzip it anywhere. **Keep all the files together in one folder.** The main patch loads the strips, LFO cards, effects and scripts from the same folder, so moving one file out breaks it.
+3. Open `fxpatcher.maxpat` in Max 9. It opens in presentation mode, which is the full interface.
 
-The **Out** meters (top right) show the signal actually leaving the patch on the outputs you picked. If **Master** moves but **Out** doesn't, check the Out menu. If both move and you hear nothing, check Max's *Options → Audio Status* and make sure your interface is the output device.
+If a strip or the Max Console complains that it can't find a `fxm.…` or `.js` file, the files have been split up. Put them back in one folder and reopen.
 
-![Input, routing and file player](screenshots/input-routing-file.jpg)
+## First sound in one minute
+
+1. Press **Audio** (top left). It turns orange when audio is running.
+2. Check that the **Out** menu (top right) matches the outputs your speakers are on. The default is 1/2.
+3. Drag a WAV or AIFF loop onto **DROP A LOOP HERE**, or press **Load** next to FILE. It starts playing.
+4. Set input **A** to **File**.
+5. In **Routing**, click **A** on the left, then **Slot 1** on the right. That draws a cable. Then click **Slot 1** on the left and **Master** on the right.
+6. Choose an effect from Slot 1's menu, for example **Shimmer**.
+
+You should now hear the loop through Shimmer, and the **Master** and **Out** meters should move.
+
+**A starter ambient chain:** `A → Slot 1 (Memory) → Slot 2 (Shimmer) → Master`, with Slot 3 (Tape) fed from Slot 2 and sent back into Slot 1 for slow feedback. Then press Learn on LFO 1 and move Memory's **Blur** knob.
+
+## The top bar
+
+| Control | What it does |
+|---|---|
+| **Audio** | Starts and stops sound. |
+| **Panic** | Removes every slot-to-slot cable, which breaks any feedback loop. Cables from A and B, and cables into Master, stay. |
+| **Clear all** | Removes every cable. |
+| **Scenes box** | Shows the current and next scene, the bar count, and the sequencer's Start, Next bar, Stop and Repeat buttons. |
+| **Master** | Overall volume, after a safety limiter. |
+| **Out meters** | The signal actually leaving the patch on the outputs you picked. |
+| **Out menu** | Which output pair to use: 1/2, 3/4, 5/6 or 7/8. |
+
+## Inputs
+
+**A** and **B** are two stereo inputs, each with a source menu:
+
+- **1/2** or **3/4**: a stereo input pair
+- **1 mono** to **4 mono**: a single input, sent to both sides
+- **File**: the file player
+- **Off**
+
+Under each menu is a gain fader with a meter. **Mon** plays that input straight to the outputs, with no cables, so you can check the input is working. Turn Mon off once the input goes through effects, or you'll hear dry and wet together.
+
+## Routing
+
+The **Routing** grid works like a patch bay. Sources are on the left (A, B and the outputs of Slots 1–8). Destinations are on the right (the inputs of Slots 1–8, and Master).
+
+- **Connect:** click a source dot, then a destination dot.
+- **Disconnect:** click a cable to select it, then press Delete.
+
+One source can feed several destinations, and several sources can feed one. Slots can feed each other in any order, including feedback loops.
 
 ## The file player
 
@@ -44,7 +80,15 @@ The row under the file player shapes the loop itself: **Speed** (tape-style, 1×
 
 ## Effect slots
 
-Each of the 8 strips has an effect menu, **Bypass**, 8 knobs, a **Mix** control (equal-power dry/wet), and in/out gain with meters. Press **Focus** on a strip to open all 16 of its knobs in the big **FOCUSED** panel. Knobs 9–16 only appear there.
+Each of the 8 strips has:
+
+- an effect menu
+- **Bypass**
+- 8 knobs, labelled for the loaded effect
+- a **Mix** control: equal-power dry/wet, where 1.00 is fully wet
+- **in** and **out** gain faders with meters
+
+Press **Focus** on a strip to open all 16 of its knobs in the big **FOCUSED** panel. Knobs 9–16 only appear there. Changing the effect loads that effect's default settings.
 
 The 15 effects:
 
@@ -98,7 +142,38 @@ The **Sequencer** row has 8 steps. Each step has a scene, a length in bars, and 
 
 ## Recording
 
-In the **Record** section, arm any mix of Master, A, B and Slots 1–8, then press **● Record**. Each armed source records its own WAV file (24-bit or 32-bit float). Every take gets its own dated folder, and nothing is ever overwritten. **Open folder** shows your takes. The default location is `~/Documents/FX Patcher/Recordings`.
+In the **Record** section:
+
+1. Arm any sources you want: Master, A, B and Slots 1–8. Master is armed by default.
+2. Pick **24-bit WAV** or **32-bit float WAV**.
+3. To change where takes are saved, press **Choose…**. The default is `~/Documents/FX Patcher/Recordings`.
+4. Press **● Record** to start and again to stop. The **● Rec** button in the Scenes row does the same thing.
+
+Each armed source records its own WAV file. Every take gets its own dated folder, so nothing is ever overwritten. **Open folder** shows your takes.
+
+## Saving your work
+
+- **Scenes** are saved automatically to `fxscenes.json` next to the patch, so they come back the next time you open it.
+- **Banks… → Save bank** keeps a whole set of scenes as a separate file. **Load bank** brings it back.
+- When you reopen the patch, store what you're doing as a scene first. A reopened patch starts with no file loaded and no cables until you recall a scene.
+
+## Troubleshooting
+
+| Problem | What to check |
+|---|---|
+| No sound at all | **Audio** is on, and *Options → Audio Status* shows your interface as the output. The **Out** menu is on the right pair. Something is cabled to **Master**. |
+| Master meter moves but Out doesn't | The **Out** menu is on a pair your interface doesn't have. |
+| Input meters are dead | The **A**/**B** source menu, the input gain fader, and the input in *Audio Status*. |
+| An effect is silent | Its **Mix** isn't at 0, **Bypass** is off, and a cable feeds the slot. Open `fxtest.maxpat` to print every effect's output level to the Max Console. |
+| Feedback gets out of hand | Press **Panic**. |
+| An LFO does nothing | **On** is lit, **Depth** isn't 0, and a Slot and Parameter are picked. The targeted knob should turn orange. |
+| Shift-click doesn't save a scene | Use **Store** and then click the number instead. |
+
+## Known limitations
+
+- Tempo comes from the **BPM** box. Following Ableton's clock isn't built yet.
+- There's no true sidechain yet. Swell stands in for ducking.
+- macOS only so far.
 
 ## Files
 
@@ -114,7 +189,7 @@ In the **Record** section, arm any mix of Master, A, B and Slots 1–8, then pre
 | `fxmod.js` | Per-slot "knob + LFO" combiner |
 | `fxrec.js` | Recorder take folders and settings |
 | `fxtest.maxpat` | Self-test: runs every effect on a test tone and prints each one's output level to the Max Console |
-| `make_fxpatcher.py` | Python generator that writes all the `.maxpat` files: `python3 make_fxpatcher.py ./` |
+| `make_fxpatcher.py` | Python generator that writes all the `.maxpat` files: `python3 make_fxpatcher.py ./`. Only needed if you want to change the design in code. |
 
 ## Roadmap
 
