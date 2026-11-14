@@ -899,7 +899,7 @@ def num(p,name,init,mn,mx,pr,pres,keep=False):
     return b
 def build_main():
     p=P(); W=1262.8
-    TOP=146; FY=TOP+274; FCY=FY+92
+    TOP=104; FY=TOP+274; FCY=FY+92
     FY2=FCY+92; FCY2=FY2+92
     SY=FCY2+64; MY=SY+302; MH=26+2*182; RY=MY+MH+6
     def sect(title,y,h,note=""):
@@ -907,50 +907,22 @@ def build_main():
         p.com("▾",(2400,y,16,20),(14,y+2,16,20)); p.com(title,(2420,y,200,20),(30,y+2,200,20),fontface=1)
         if note: p.com(note,(2620,y,800,20),(240,y+2,900,20))
     # ---------- header ----------
-    p.com("FX PATCHER v12.8",(12,12,348,20),(12,12,348,20))
+    p.com("FX PATCHER v13.0",(12,12,348,20),(12,12,348,20))
     au=ltext(p,"audio","Audio",1,(12,34,84,18),(12,36,84,18)); nov(p)
     pn=ltext(p,"panic","Panic",0,(100,34,84,18),(100,36,84,18)); nov(p)
     clr=ltext(p,"clear","Clear all",0,(188,34,84,18),(188,36,84,18)); nov(p)
-    p.add("panel",None,(2400,10,420,50),(400,10,420,50),1,0,border=1,rounded=0,background=1)
-    p.com("Scenes",(2400,60,80,24),(408,12,80,24),fontsize=16.0,fontface=1)
-    cNow=p.com("Now  —",(2400,90,70,20),(408,36,70,20)); cNext=p.com("Next  —",(2480,90,70,20),(480,36,70,20))
-    cBar=p.com("Bar  —",(2560,90,90,20),(552,36,90,20))
-    bStart=ltext(p,"seq_start","Start",0,(2400,120,80,18),(650,14,80,18)); nov(p)
-    bNB=ltext(p,"seq_nextbar","Next bar",0,(2490,120,80,18),(734,14,80,18)); nov(p)
-    bStop=ltext(p,"seq_stop","Stop",0,(2580,120,80,18),(650,36,80,18)); nov(p)
-    bRep=ltext(p,"seq_repeat","Repeat",1,(2670,120,80,18),(734,36,80,18)); nov(p)
     p.com("Master",(848,34,60,20),(848,36,60,20))
     gM=hgain(p,"master",(1300,800,240,26),(910,40,240,26)); nov(p)
     p.com("Out",(1156,34,40,20),(1156,36,40,20))
     uo=menu(p,"output",["1/2","3/4","5/6","7/8"],0,(1300,860,72,15),(1200,36,72,15)); nov(p)
-    # ---------- scenes row ----------
-    p.add("panel",None,(2400,150,W,28),(10,64,W,28),1,0,border=1,rounded=0,background=1)
-    p.com("Scenes",(2400,180,56,20),(16,68,56,20),fontface=1)
-    sbtn=[]
-    for k in range(8):
-        b=ltext(p,f"scene{k+1}",f"{k+1}",0,(2400+k*46,210,42,18),(76+k*46,68,42,18)); nov(p); sbtn.append(b)
-    bStore=ltext(p,"scene_store","Store",1,(2800,210,60,18),(450,68,60,18)); nov(p)
-    banks=p.add("umenu",None,(2870,210,90,20),(514,68,90,20),1,3,["int","",""],items=["Banks…",",","Save bank…",",","Load bank…"])
-    p.com("Click to recall · Shift-click (or Store) to save",(2970,210,330,20),(610,68,300,20))
-    recH=ltext(p,"rec_head","● Rec",1,(3000,240,60,18),(1050,68,60,18)); nov(p)
-    tH=p.com("00:00.0",(3070,240,60,20),(1114,68,60,20),fontface=1)
-    stH=p.com("Ready",(3140,240,90,20),(1176,68,94,20))
-    # ---------- sequencer row ----------
-    p.add("panel",None,(2400,270,W,44),(10,96,W,44),1,0,border=1,rounded=0,background=1)
-    p.com("Sequencer",(2400,300,70,20),(16,98,70,20),fontface=1)
-    p.com("BPM",(2400,330,32,20),(16,118,32,20))
-    nBpm=num(p,"bpm",120,20,300,(2440,330,40,15),(48,120,40,15))
-    stepUI=[]
-    for s in range(8):
-        x=100+s*130
-        p.com(f"Step {s+1}",(2400+s*130,360,62,18),(x,98,62,18)); p.com("bars  %",(2470+s*130,360,60,18),(x+66,98,60,18))
-        m=menu(p,f"step{s+1}_scene",[f"Scene {k}" for k in range(1,9)]+["—"],s%4,(2400+s*130,390,62,15),(x,118,62,15)); nov(p)
-        nb=num(p,f"step{s+1}_bars",2,1,64,(2466+s*130,390,26,15),(x+66,118,26,15))
-        nc=num(p,f"step{s+1}_chance",100,0,100,(2496+s*130,390,26,15),(x+96,118,26,15))
-        stepUI.append((m,nb,nc))
-    p.com("Beats/bar",(3500,300,60,18),(1144,98,60,18))
-    nBpb=num(p,"beats",4,1,16,(3570,300,30,15),(1210,98,30,15))
-    stepNow=p.com("",(3500,330,120,18),(1144,118,120,18))
+    # ---------- tempo row (LFO sync only - no scenes/sequencer) ----------
+    p.add("panel",None,(2400,150,W,28),(10,70,W,28),1,0,border=1,rounded=0,background=1)
+    p.com("Tempo",(2400,180,56,20),(16,74,56,20),fontface=1)
+    p.com("BPM",(2440,180,32,20),(90,74,32,20))
+    nBpm=num(p,"bpm",120,20,300,(2480,180,40,15),(126,76,40,15))
+    p.com("Beats/bar",(2540,180,60,18),(180,74,60,18))
+    nBpb=num(p,"beats",4,1,16,(2610,180,30,15),(246,76,30,15))
+    p.com("Used by the LFOs' Sync rates",(2650,180,220,18),(290,76,220,18),fontsize=10.0)
     # ---------- main area ----------
     p.com("INPUT",(12,78,128,20),(12,TOP,128,20))
     OPTS=["Off","1/2","3/4","File A","File B"]
@@ -1180,69 +1152,6 @@ out2 = sr * gr * env;
         ps2=p.obj("prepend set",(1600+i*60,530,70,22),1,1); p.c(rt,2+i,ps2,0); p.c(ps2,0,d,0)
         pn2=p.obj(f"prepend {i+1}",(1600+i*60,520,60,22),1,1); p.c(d,0,pn2,0); p.c(pn2,0,sout,0)
     p.com("Knobs 1–8 mirror the strip · 9–16 live only here",(1600,600,300,20),(650,TOP+240,400,20))
-    # ---------- scenes engine ----------
-    ap=p.obj("autopattr",(2400,500,70,22),1,4)
-    cab=p.obj("pattr cables",(2400,700,90,22),1,3,["","",""],varname="cables")
-    ps_=p.obj("pattrstorage fxscenes @savemode 0",(2400,600,220,22),1,1,[""])
-    seq=p.obj("v8 fxseq.js",(2700,500,100,22),1,3)
-    rseq=p.obj("route recall store",(2700,540,140,22),1,3)
-    p.c(seq,0,rseq,0)
-    # recall
-    prc=p.obj("prepend recall",(2700,570,90,22),1,1); p.c(rseq,0,prc,0); p.c(prc,0,ps_,0)
-    # store: dump cables -> pattr, store, write, refresh dots
-    tst=p.obj("t i b",(2850,570,40,22),1,2); p.c(rseq,1,tst,0)
-    dmp=p.msg("dumpconnections",(2850,600,100,22)); p.c(tst,1,dmp,0); p.c(dmp,0,cp,0)
-    ser=p.obj("dict.serialize",(2850,630,90,22),1,1); p.c(cp,1,ser,0); p.c(ser,0,cab,0)
-    # give dumpconnections -> dict.serialize -> cables pattr a tick to land before storing,
-    # since crosspatch's dict output isn't guaranteed to resolve synchronously within the same event
-    stdl=p.obj("delay 20",(2870,630,70,22),2,1); p.c(tst,0,stdl,0)
-    tst2=p.obj("t b b i",(2900,660,60,22),1,3); p.c(stdl,0,tst2,0)
-    pso=p.obj("prepend store",(2900,690,90,22),1,1); p.c(tst2,2,pso,0); p.c(pso,0,ps_,0)
-    wr=p.msg("write fxscenes.json",(2950,720,120,22)); p.c(tst2,1,wr,0); p.c(wr,0,ps_,0)
-    gsl=p.msg("getslotlist",(3000,750,80,22)); p.c(tst2,0,gsl,0); p.c(gsl,0,ps_,0)
-    # cables recall -> crosspatch
-    sz=p.obj("sel 0",(2400,720,40,22),2,2); des=p.obj("dict.deserialize",(2400,740,100,22),1,1); p.c(cab,0,sz,0); p.c(sz,1,des,0); p.c(des,0,cp,0)
-    # slotlist -> seq ; read at load ; priorities
-    rps=p.obj("route slotlist",(2400,640,90,22),1,2); p.c(ps_,0,rps,0)
-    psl=p.obj("prepend slotlist",(2400,670,100,22),1,1); p.c(rps,0,psl,0); p.c(psl,0,seq,0)
-    lb_=p.obj("loadbang",(2600,420,60,22),1,1); dl=p.obj("delay 800",(2600,450,70,22),2,1); p.c(lb_,0,dl,0)
-    init=p.msg("read fxscenes.json, getslotlist, "+", ".join(f"priority slot{k}::module -1" for k in range(1,9)),(2600,480,400,40))
-    p.c(dl,0,init,0); p.c(init,0,ps_,0)
-    # banks menu
-    bsel=p.obj("sel 1 2",(2870,250,60,22),3,3); p.c(banks,0,bsel,0)
-    bw=p.msg("write",(2870,280,40,22)); br=p.msg("read, getslotlist",(2920,280,100,22))
-    p.c(bsel,0,bw,0); p.c(bsel,1,br,0); p.c(bw,0,ps_,0); p.c(br,0,ps_,0)
-    bset=p.msg("set 0",(2990,250,40,22)); p.c(bsel,0,bset,0); p.c(bsel,1,bset,0); p.c(bset,0,banks,0)
-    # scene buttons + shift + store mode
-    mods=p.obj("modifiers",(2700,180,80,22),1,5); psh=p.obj("prepend shiftkey",(2700,210,110,22),1,1)
-    p.c(mods,0,psh,0); p.c(psh,0,seq,0)
-    for k,b in enumerate(sbtn):
-        m=p.msg(f"click {k+1}",(2400+k*60,240,56,22)); tb=p.obj("t b b",(2400+k*60,230,40,22),1,2,["bang","bang"])
-        p.c(b,0,tb,0); p.c(tb,1,mods,0); p.c(tb,0,m,0); p.c(m,0,seq,0)
-    psm=p.obj("prepend store_mode",(2800,240,110,22),1,1); p.c(bStore,0,psm,0); p.c(psm,0,seq,0)
-    # sequencer controls
-    for b,msgt in [(bStart,"start"),(bNB,"nextbar"),(bStop,"stop")]:
-        tb=p.obj("t b",(2400,150,30,22),1,1,["bang"]); m=p.msg(msgt,(2440,150,60,22)); p.c(b,0,tb,0); p.c(tb,0,m,0); p.c(m,0,seq,0)
-    prr=p.obj("prepend setrepeat",(2680,150,110,22),1,1); p.c(bRep,0,prr,0); p.c(prr,0,seq,0)
-    lrep=p.obj("loadmess 1",(2680,120,70,22),1,1); p.c(lrep,0,bRep,0)
-    pb=p.obj("prepend setbpm",(2440,350,100,22),1,1); p.c(nBpm,0,pb,0); p.c(pb,0,seq,0)
-    pbb=p.obj("prepend setbpb",(3570,330,100,22),1,1); p.c(nBpb,0,pbb,0); p.c(pbb,0,seq,0)
-    for s,(m,nb,nc) in enumerate(stepUI):
-        for o,key in [(m,"scene"),(nb,"bars"),(nc,"chance")]:
-            pp2=p.obj(f"prepend setstep {s+1} {key}",(2400+s*130,420,150,22),1,1); p.c(o,0,pp2,0); p.c(pp2,0,seq,0)
-    # clock
-    rclk=p.obj("route run interval",(2700,800,120,22),1,3); p.c(seq,2,rclk,0)
-    met=p.obj("metro 500",(2700,830,70,22),2,1); p.c(rclk,0,met,0); p.c(rclk,1,met,1)
-    tk=p.msg("tick",(2700,860,40,22)); p.c(met,0,tk,0); p.c(tk,0,seq,0)
-    # UI from seq
-    rui=p.obj("route now next bar label storemode step",(2900,800,260,22),1,7); p.c(seq,1,rui,0)
-    for o,c_ in [(0,cNow),(1,cNext),(2,cBar)]:
-        ps3=p.obj("prepend set",(2900+o*90,830,80,22),1,1); p.c(rui,o,ps3,0); p.c(ps3,0,c_,0)
-    rl=p.obj("route 1 2 3 4 5 6 7 8",(2900,860,200,22),1,9); p.c(rui,3,rl,0)
-    for k,b in enumerate(sbtn):
-        pt=p.obj("prepend text",(2900+k*80,890,80,22),1,1); p.c(rl,k,pt,0); p.c(pt,0,b,0)
-    pss=p.obj("prepend set",(3200,830,80,22),1,1); p.c(rui,4,pss,0); p.c(pss,0,bStore,0)
-    stp=p.obj("sprintf set Playing step %d",(3300,830,160,22),1,1); p.c(rui,5,stp,0); p.c(stp,0,stepNow,0)
     # ---------- modulation placeholder ----------
     sect("MODULATION",MY,MH,"16 LFOs · each can drive 3 knobs · press Learn, then move any knob on a strip or in Focus")
     lfojs=p.obj("v8 fxlfo.js",(4400,100,90,22),1,3)
@@ -1316,9 +1225,9 @@ out2 = sr * gr * env;
     p.c(opB,0,tob,0); p.c(tob,0,omsg,0); p.c(omsg,0,node,0)
     lin=p.obj("loadbang",(3600,540,60,22),1,1); dl2=p.obj("delay 3000",(3600,565,70,22),2,1); mi=p.msg("init",(3600,585,40,22))
     p.c(lin,0,dl2,0); p.c(dl2,0,mi,0); p.c(mi,0,node,0)
-    # record start/stop: both buttons share state
+    # record start/stop
     rr=p.obj("r fx.recbtn",(3600,800,80,22),0,1)
-    for b in (recB,recH):
+    for b in (recB,):
         sb=p.obj("s fx.recbtn",(3600,770,80,22),1,0); p.c(b,0,sb,0)
         ps4=p.obj("prepend set",(3700,830,80,22),1,1); p.c(rr,0,ps4,0); p.c(ps4,0,b,0)
     sel01=p.obj("sel 1 0",(3600,860,60,22),3,3); p.c(rr,0,sel01,0)
@@ -1346,8 +1255,8 @@ out2 = sr * gr * env;
     ex=p.obj("expr ($i1/600)",(3600,1190,90,22),1,1); ex2=p.obj("expr ($i1/10)%60",(3700,1190,110,22),1,1); ex3=p.obj("expr $i1%10",(3820,1190,80,22),1,1)
     tt=p.obj("t i i i",(3600,1220,60,22),1,3); p.c(cnt,0,tt,0); p.c(tt,2,ex3,0); p.c(tt,1,ex2,0); p.c(tt,0,ex,0)
     pk3=p.obj("pak 0 0 0",(3600,1250,80,22),3,1); p.c(ex,0,pk3,0); p.c(ex2,0,pk3,1); p.c(ex3,0,pk3,2)
-    spf=p.obj("sprintf set %02d:%02d.%d",(3600,1280,150,22),3,1); p.c(pk3,0,spf,0); p.c(spf,0,tR,0); p.c(spf,0,tH,0)
-    p.com("Audio on · pick sources · cable it · pick effects · Focus to edit · Shift-click a scene to store · arm sources and press Record",
+    spf=p.obj("sprintf set %02d:%02d.%d",(3600,1280,150,22),3,1); p.c(pk3,0,spf,0); p.c(spf,0,tR,0)
+    p.com("Audio on · pick sources · cable it · pick effects · Focus to edit · arm sources and press Record",
           (3600,1400,900,20),(12,RY+176,900,20))
     p.save("fxpatcher.maxpat",[40,30,1300,RY+210],pres=True)
 build_empty(); build_heat(); build_drift(); build_shimmer(); build_extra_modules(); build_slot(); build_lfo(); build_filectl(); build_main()

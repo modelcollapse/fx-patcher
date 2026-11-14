@@ -1,6 +1,6 @@
 # FX Patcher
 
-A self-contained Max 9 modular effects rack for ambient work. You get eight stereo effect slots, routing you patch with cables, sixteen LFOs, scenes with a scene sequencer, and multitrack recording. Everything is stock Max and ABL objects, so there are no third-party externals or VSTs.
+A self-contained Max 9 modular effects rack for ambient work. You get eight stereo effect slots, routing you patch with cables, sixteen LFOs, and multitrack recording. Everything is stock Max and ABL objects, so there are no third-party externals or VSTs.
 
 ![FX Patcher overview](screenshots/overview.jpg)
 
@@ -38,10 +38,11 @@ You should now hear the loop through Shimmer, and the **Master** and **Out** met
 | **Audio** | Starts and stops sound. |
 | **Panic** | Removes every slot-to-slot cable, which breaks any feedback loop. Cables from A and B, and cables into Master, stay. |
 | **Clear all** | Removes every cable. |
-| **Scenes box** | Shows the current and next scene, the bar count, and the sequencer's Start, Next bar, Stop and Repeat buttons. |
 | **Master** | Overall volume, after a safety limiter. |
 | **Out meters** | The signal actually leaving the patch on the outputs you picked. |
 | **Out menu** | Which output pair to use: 1/2, 3/4, 5/6 or 7/8. |
+
+Below that is a **Tempo** row — **BPM** and **Beats/bar** — used only by the LFOs' Sync rates (8 bars down to 1/16). There's no scene or sequencer system; the patch is purely live-performance now, with whatever you've patched and dialed in at any moment.
 
 ## Inputs
 
@@ -142,17 +143,6 @@ Each LFO card has:
 
 The knob you set is the centre point, and the LFO moves around it. Any knob an LFO is targeting turns orange and visibly swings, both on the strip and in the Focus panel, so you can always see what's being modulated. Every effect knob (all 16 per slot), each slot's Mix, and all eleven File FX knobs can be modulated. When several LFOs hit the same knob, their movements add together.
 
-## Scenes and the scene sequencer
-
-![Scenes](screenshots/scenes.jpg)
-
-- **To save:** Shift-click a scene number, or press **Store** and then click a number. Saved scenes show a dot.
-- **To recall:** click a scene number.
-- **What a scene holds:** all effects, knobs and mix settings, the LFO settings, and the routing cables.
-- **Banks…** saves or loads the whole set of scenes as a file. The current set is also written to `fxscenes.json` automatically.
-
-The **Sequencer** row has 8 steps. Each step has a scene, a length in bars, and a chance (%) that it fires. Set **BPM** and **Beats/bar**, then press **Start**. **Next bar** jumps to the next step at the next bar line. **Repeat** loops the sequence, and **Stop** ends it.
-
 ## Recording
 
 In the **Record** section:
@@ -160,15 +150,13 @@ In the **Record** section:
 1. Arm any sources you want: Master, A, B and Slots 1–8. Master is armed by default.
 2. Pick **24-bit WAV** or **32-bit float WAV**.
 3. To change where takes are saved, press **Choose…**. The default is `~/Documents/FX Patcher/Recordings`.
-4. Press **● Record** to start and again to stop. The **● Rec** button in the Scenes row does the same thing.
+4. Press **● Record** to start and again to stop.
 
 Each armed source records its own WAV file. Every take gets its own dated folder, so nothing is ever overwritten. **Open folder** shows your takes.
 
 ## Saving your work
 
-- **Scenes** are saved automatically to `fxscenes.json` next to the patch, so they come back the next time you open it.
-- **Banks… → Save bank** keeps a whole set of scenes as a separate file. **Load bank** brings it back.
-- When you reopen the patch, store what you're doing as a scene first. A reopened patch starts with no file loaded and no cables until you recall a scene.
+There's no scene or save/recall system — this is a purely live-performance patch. Nothing about your routing, knob settings or loaded loops persists between sessions; a reopened patch always starts empty (no file loaded, no cables). Recordings are the one thing that's saved automatically, under **Recording** above.
 
 ## Troubleshooting
 
@@ -180,7 +168,6 @@ Each armed source records its own WAV file. Every take gets its own dated folder
 | An effect is silent | Its **Mix** isn't at 0, **Bypass** is off, and a cable feeds the slot. Open `fxtest.maxpat` to print every effect's output level to the Max Console. |
 | Feedback gets out of hand | Press **Panic**. |
 | An LFO does nothing | **On** is lit, **Depth** isn't 0, and a Slot and Parameter are picked. The targeted knob should turn orange. |
-| Shift-click doesn't save a scene | Use **Store** and then click the number instead. |
 
 ## Known limitations
 
@@ -197,7 +184,6 @@ Each armed source records its own WAV file. Every take gets its own dated folder
 | `fx.lfo.maxpat` | One LFO card, used 16 times |
 | `fx.filectl.maxpat` | File FX knob row, used twice (LFO targets "File A" and "File B") |
 | `fxm.*.maxpat` | The effect modules, loaded into each slot |
-| `fxseq.js` | Scenes and sequencer |
 | `fxlfo.js` | LFO engine |
 | `fxmod.js` | Per-slot "knob + LFO" combiner |
 | `fxrec.js` | Recorder take folders and settings |
@@ -208,5 +194,4 @@ Each armed source records its own WAV file. Every take gets its own dated folder
 
 - Follow Ableton's clock over IAC MIDI
 - A real sidechain/duck bus
-- 80 ms crossfade between scenes
 - Collapsible sections
