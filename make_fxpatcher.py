@@ -903,7 +903,17 @@ def num(p,name,init,mn,mx,pr,pres,keep=False):
     return b
 def build_main():
     p=P(); W=1262.8
-    TOP=104; FY=TOP+274; FCY=FY+92
+    TOP=104
+    # +300, not +274: the ROUTING crosspatch and the FOCUSED panel both run from
+    # TOP down to TOP+270 (y=374) by design (crosspatch's last row and the Focus
+    # strip's "Knobs 1-8..." comment both sit right at that edge). At +274 the File
+    # A/B header row's presentation_rect (18px tall, 24px above FY) fell entirely
+    # inside that y128-374 span across most of its width, so any control placed to
+    # the right of x=188 (where both panels start) got painted over - that's what
+    # silently hid the new Rec button at x=188 on the File A row (File B's row sits
+    # far enough below not to collide). Pushing FY down clears that band instead of
+    # resizing either panel.
+    FY=TOP+300; FCY=FY+92
     FY2=FCY+92; FCY2=FY2+92
     SY=FCY2+64; MY=SY+302; MH=26+2*182; RY=MY+MH+6
     def sect(title,y,h,note=""):
@@ -1064,14 +1074,22 @@ out2 = sr * gr * env;
         fcap=p.obj(f"route {letter}",(500,1600+dy,80,22),1,2); p.c(rcapresp,0,fcap,0)
         pathbox=p.msg("",(500,1720+dy,260,22))
         psetpath=p.obj("prepend set",(500,1630+dy,80,22),1,1); p.c(fcap,0,psetpath,0); p.c(psetpath,0,pathbox,0)
-        popencap=p.obj("prepend open",(620,1630+dy,90,22),1,1); p.c(fcap,0,popencap,0); p.c(popencap,0,sfcap,0)
-        startcap=p.msg("1",(620,1660+dy,30,22)); p.c(fcap,0,startcap,0); p.c(startcap,0,sfcap,0)
+        # Explicit trigger so "open" always reaches sfrecord~ before the "1" that starts
+        # it - fan-out from a single outlet fires most-recently-connected-first in Max,
+        # which previously sent start before the file was open and silently ate every take.
+        tcapseq=p.obj("t b l",(620,1615+dy,60,22),1,2); p.c(fcap,0,tcapseq,0)
+        popencap=p.obj("prepend open",(620,1630+dy,90,22),1,1); p.c(tcapseq,1,popencap,0); p.c(popencap,0,sfcap,0)
+        startcap=p.msg("1",(620,1660+dy,30,22)); p.c(tcapseq,0,startcap,0); p.c(startcap,0,sfcap,0)
         tstop=p.obj("sel 0",(380,1690+dy,60,22),2,2); p.c(frec,0,tstop,0)
         stopcap=p.msg("0",(380,1720+dy,30,22)); p.c(tstop,0,stopcap,0); p.c(stopcap,0,sfcap,0)
         dlystop=p.obj("delay 100",(380,1750+dy,70,22),2,1); p.c(tstop,0,dlystop,0)
-        tseq=p.obj("t b b b",(380,1780+dy,60,22),1,3); p.c(dlystop,0,tseq,0)
-        clmcap=p.msg("clear",(300,1810+dy,40,22)); p.c(tseq,2,clmcap,0); p.c(clmcap,0,pl,0)
-        loncap=p.msg("1",(380,1810+dy,30,22)); p.c(tseq,1,loncap,0); p.c(loncap,0,lp,0)
+        # Same clear/loop-on/reveal-player/load order the drag-drop path (tdz above) uses,
+        # so a captured take swaps the drop-zone placeholder for the waveform view too -
+        # without this the take loads and loops silently but the UI never shows it happened.
+        tseq=p.obj("t b b b b",(380,1780+dy,80,22),1,4); p.c(dlystop,0,tseq,0)
+        clmcap=p.msg("clear",(300,1810+dy,40,22)); p.c(tseq,3,clmcap,0); p.c(clmcap,0,pl,0)
+        loncap=p.msg("1",(380,1810+dy,30,22)); p.c(tseq,2,loncap,0); p.c(loncap,0,lp,0)
+        p.c(tseq,1,full,0)
         bangpath=p.obj("t b",(460,1810+dy,30,22),1,1,["bang"]); p.c(tseq,0,bangpath,0); p.c(bangpath,0,pathbox,0)
         pappendcap=p.obj("prepend append",(460,1840+dy,100,22),1,1); p.c(pathbox,0,pappendcap,0); p.c(pappendcap,0,pl,0)
         return fg
