@@ -79,7 +79,9 @@ The small spectrum display under inputs A/B shows the master output.
 
 ### File FX
 
-The row under each file player shapes that loop itself: **Speed** (tape-style, 1× in the middle), **Pitch** (±1 octave, keeps the tempo), **Start** and **Length** (which part of the file loops), **Volume**, **Width** (mono to extra-wide), **Tone** (low-pass) and **Pan**. All eight can be LFO targets: pick **File A** or **File B** in an LFO's Slot menu, or press Learn and move one of these knobs. Sweeping Start makes a scanning, granular-style loop.
+The row under each file player shapes that loop itself: **Speed** (tape-style, 1× in the middle), **Pitch** (±1 octave, keeps the tempo), **Start** and **Length** (which part of the file loops), **Volume**, **Width** (mono to extra-wide), **Tone** (low-pass) and **Pan**. All eight can be LFO targets: pick **File A** or **File B** in an LFO's Slot menu — the list stops at these 8, so you always see where it ends — or press Learn and move one of these knobs. Sweeping Start makes a scanning, granular-style loop.
+
+Next to each File FX row, an **End** readout shows where the loop currently ends (as a % of the whole file), computed live from Start and Length — there's no separate End knob, but you can always see the point those two add up to.
 
 ## Effect slots
 
@@ -91,7 +93,7 @@ Each of the 8 strips has:
 - a **Mix** control: equal-power dry/wet, where 1.00 is fully wet
 - **in** and **out** gain faders with meters
 
-Press **Focus** on a strip to open all 16 of its knobs in the big **FOCUSED** panel. Knobs 9–16 only appear there. Changing the effect loads that effect's default settings.
+Press **Focus** on a strip to open all 16 of its knobs in the big **FOCUSED** panel. Knobs 9–16 only appear there. Changing the effect loads that effect's default settings. Each of the 8 slots has its own border/background tint and routing-cable color; the FOCUSED panel picks up the same color as whichever slot is focused.
 
 The 15 effects:
 

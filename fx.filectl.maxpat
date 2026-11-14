@@ -1230,7 +1230,7 @@
       400.0,
       22.0
      ],
-     "text": "Speed Pitch Start Length Volume Width Tone Pan \u2013 \u2013 \u2013 \u2013 \u2013 \u2013 \u2013 \u2013 \u2013",
+     "text": "Speed Pitch Start Length Volume Width Tone Pan",
      "outlettype": [
       ""
      ]

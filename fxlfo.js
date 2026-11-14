@@ -14,7 +14,7 @@ var LAB = {};
 function defaultLabels() { var a = []; for (var i = 1; i <= 17; i++) a.push("" + i); return a; }
 function itemsFor(s) {
   var src = LAB[s] || defaultLabels(), out = [];
-  for (var i = 0; i < 17; i++) {
+  for (var i = 0; i < src.length; i++) {
     var nm = src[i];
     if (nm === undefined || nm === "–" || nm === "-") nm = "(" + (i + 1) + ")";
     out.push(nm);

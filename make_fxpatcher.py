@@ -56,6 +56,17 @@ MODULES = {
  "Empty":{"labels":"– – – – – – – – – – – – – – – –","defaults":"0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0."},
 }
 MENU=["Empty","Heat","Drift","Shimmer"]
+# per-slot (1-8) border + background tint, also used for the routing cables and the FOCUSED panel
+SLOT_COLORS=[
+ ((0.85,0.25,0.25,1.0),(0.119,0.035,0.035,1.0)),
+ ((0.9,0.55,0.15,1.0),(0.126,0.077,0.021,1.0)),
+ ((0.85,0.75,0.2,1.0),(0.119,0.105,0.028,1.0)),
+ ((0.35,0.75,0.35,1.0),(0.049,0.105,0.049,1.0)),
+ ((0.2,0.7,0.65,1.0),(0.028,0.098,0.091,1.0)),
+ ((0.3,0.55,0.9,1.0),(0.042,0.077,0.126,1.0)),
+ ((0.6,0.4,0.85,1.0),(0.084,0.056,0.119,1.0)),
+ ((0.9,0.35,0.65,1.0),(0.126,0.049,0.091,1.0)),
+]
 
 def module_base():
     q=P()
@@ -678,6 +689,12 @@ def build_slot():
     ttl=s.com("Slot",(20,600,60,20),(2,2,62,20))
     lm=s.obj("loadmess #1",(100,600,80,22),1,1); ps=s.obj("prepend set Slot",(100,630,110,22),1,1)
     s.c(lm,0,ps,0); s.c(ps,0,ttl,0)
+    fr=s.add("panel",None,(1400,600,154,295),(0,0,154,294.8),1,0,border=1,rounded=0,background=1)
+    selB=s.obj("select 1 2 3 4 5 6 7 8",(1900,40,300,22),1,9); s.c(lm,0,selB,0)
+    selG=s.obj("select 1 2 3 4 5 6 7 8",(1900,400,300,22),1,9); s.c(lm,0,selG,0)
+    for i,(bc,bg) in enumerate(SLOT_COLORS):
+        mb=s.msg("bordercolor "+" ".join(str(v) for v in bc),(1900,80+i*30,220,22)); s.c(selB,i,mb,0); s.c(mb,0,fr,0)
+        mg=s.msg("bgcolor "+" ".join(str(v) for v in bg),(1900,440+i*30,220,22)); s.c(selG,i,mg,0); s.c(mg,0,fr,0)
     fb=ltext(s,"focus","Focus",1,(220,600,62,18),(68,2,62,18)); s.boxes[-1]["box"].pop("varname",None)
     s.obj("autopattr",(1400,900,70,22),1,4)
     byp=ltext(s,"bypass","Bypass",1,(300,600,62,18),(2,46,62,18))
@@ -776,8 +793,6 @@ def build_slot():
         md=s.msg(MODULES[name]["defaults"],(x,870,250,22)); s.c(tb,0,md,0)
         up=s.obj("unpack "+" ".join(["f"]*16),(x,900,250,22),1,16); s.c(md,0,up,0)
         for i,d in enumerate(dials): s.c(up,i,d,0)
-    # strip frame
-    s.add("panel",None,(1400,600,154,295),(0,0,154,294.8),1,0,border=1,rounded=0,background=1)
     s.save("fx.slot.maxpat",[100,100,1800,950],pres=True)
 
 
@@ -865,7 +880,7 @@ def build_filectl():
         pt=s.obj(f"prepend #1 {i+1}",(100+i*90,210,80,22),1,1); s.c(d,0,pt,0); s.c(pt,0,stouch,0)
         psd=s.obj("prepend set",(100+i*90,560,70,22),1,1); s.c(rshow,i,psd,0); s.c(psd,0,d,0)
         s.c(dl,0,d,0)
-    flab=s.msg(" ".join(FILE_LABELS+["–"]*9),(600,80,400,22)); s.c(dl,0,flab,0)
+    flab=s.msg(" ".join(FILE_LABELS),(600,80,400,22)); s.c(dl,0,flab,0)
     pfl=s.obj("prepend #1",(600,110,70,22),1,1); s.c(flab,0,pfl,0); sfl=s.obj("s fx.labels",(600,140,70,22),1,0); s.c(pfl,0,sfl,0)
     rlb=s.obj("r fx.labels.ask",(700,80,90,22),0,1); s.c(rlb,0,flab,0)
     s.add("panel",None,(900,600,100,20),(0,0,760,56),1,0,border=1,rounded=0,background=1)
@@ -942,7 +957,10 @@ def build_main():
     gB=hgain(p,"srcB",(12,192,172,26),(12,TOP+106,172,26))
     p.com("ROUTING",(188,78,172,20),(188,TOP,172,20))
     cp=p.add("crosspatch",None,(600,100,436,246),(188,TOP+24,436,246),1,2,["",""],embed=1,showgain=1,numins=10,numouts=9,
-        inlabels=["A","B"]+[f"Slot {k}" for k in range(1,9)],outlabels=[f"Slot {k}" for k in range(1,9)]+["Master"])
+        inlabels=["A","B"]+[f"Slot {k}" for k in range(1,9)],outlabels=[f"Slot {k}" for k in range(1,9)]+["Master"],
+        linecolor=list(SLOT_COLORS[0][0]),
+        **{f"candycane{i+2}":list(SLOT_COLORS[i+1][0]) for i in range(7)},
+        candycane=7,candymode=0,incolormap=[1,2,1,2,3,4,5,6,7,8])
     FGEN="""Param fvol(1);
 Param fpan(0.5);
 Param fwid(1);
@@ -1011,6 +1029,10 @@ out2 = sr * gr;
         tu=p.obj("t f f",(640,1390+dy,40,22),1,2); p.c(u1,1,se,1); p.c(u1,0,tu,0); p.c(tu,1,se,0); p.c(tu,0,e34,0)
         pk2=p.obj("pack f f",(560,1420+dy,60,22),2,1); p.c(se,0,pk2,1); p.c(e34,0,pk2,0)
         m34=p.obj("prepend selection",(560,1450+dy,110,22),1,1); p.c(pk2,0,m34,0); p.c(m34,0,pl,0)
+        e100=p.obj("* 100.",(560,1480+dy,60,22),2,1); p.c(se,0,e100,0)
+        ei=p.obj("i",(560,1510+dy,40,22),2,1); p.c(e100,0,ei,0)
+        spe=p.obj("sprintf set End %d%%",(560,1540+dy,130,22),1,1); p.c(ei,0,spe,0)
+        endlab=p.com("End —",(780,1200+dy,150,20),(780,fcy+18,150,20)); p.c(spe,0,endlab,0)
         e5=p.obj("* 1.25",(900,1300+dy,50,22),2,1); p.c(frt,4,e5,0); m5=p.obj("prepend fvol",(900,1330+dy,80,22),1,1); p.c(e5,0,m5,0); p.c(m5,0,fg,0)
         e6=p.obj("* 2.",(1000,1300+dy,40,22),2,1); p.c(frt,5,e6,0); m6=p.obj("prepend fwid",(1000,1330+dy,80,22),1,1); p.c(e6,0,m6,0); p.c(m6,0,fg,0)
         e7=p.obj("expr 100.*exp($f1*5.298)",(1100,1300+dy,150,22),1,1); p.c(frt,6,e7,0); m7=p.obj("prepend ftone",(1100,1330+dy,80,22),1,1); p.c(e7,0,m7,0); p.c(m7,0,fg,0)
@@ -1101,7 +1123,13 @@ out2 = sr * gr;
     ct=p.obj("t b",(190,700,30,22),1,1,["bang"]); cm=p.msg("clear",(190,730,40,22))
     p.c(clr,0,ct,0); p.c(ct,0,cm,0); p.c(cm,0,cp,0)
     # ---------- focus panel ----------
-    p.add("panel",None,(1600,20,644.8,270),(628,TOP,644.8,270),1,0,border=1,rounded=0,background=1)
+    fpanel=p.add("panel",None,(1600,20,644.8,270),(628,TOP,644.8,270),1,0,border=1,rounded=0,background=1)
+    rfocc=p.obj("r fx.focus",(1600,650,70,22),0,1)
+    selBf=p.obj("select 1 2 3 4 5 6 7 8",(1600,680,300,22),1,9); p.c(rfocc,0,selBf,0)
+    selGf=p.obj("select 1 2 3 4 5 6 7 8",(1950,680,300,22),1,9); p.c(rfocc,0,selGf,0)
+    for i,(bc,bg) in enumerate(SLOT_COLORS):
+        mbf=p.msg("bordercolor "+" ".join(str(v) for v in bc),(1600,720+i*26,220,22)); p.c(selBf,i,mbf,0); p.c(mbf,0,fpanel,0)
+        mgf=p.msg("bgcolor "+" ".join(str(v) for v in bg),(1950,720+i*26,220,22)); p.c(selGf,i,mgf,0); p.c(mgf,0,fpanel,0)
     title=p.com("FOCUSED · click Focus on a strip",(1600,0,348,20),(636,TOP,400,20))
     rin=p.obj("r fx.panel.in",(1600,320,90,22),0,1)
     rt=p.obj("route title labels "+" ".join(f"k{i}" for i in range(1,17)),(1600,350,800,22),1,19)
