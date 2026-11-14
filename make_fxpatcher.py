@@ -1175,7 +1175,9 @@ out2 = sr * gr * env;
     p.c(rtouch2,0,ptouch2,0); p.c(ptouch2,0,midijs,0)
     rlab2=p.obj("r fx.labels",(5150,290,70,22),0,1); plab2=p.obj("prepend labels",(5150,320,90,22),1,1)
     p.c(rlab2,0,plab2,0); p.c(plab2,0,midijs,0)
-    pms=p.obj("prepend set",(5300,100,80,22),1,1); p.c(midijs,2,pms,0); p.c(pms,0,midiStat,0)
+    # fxmidimap.js already sends "set <text>" itself (not bare text) - connect directly,
+    # a second "prepend set" here would double up the selector and the comment wouldn't update
+    p.c(midijs,2,midiStat,0)
     mcoll=p.obj("coll fxmidimap_data",(5000,400,160,22),1,3,["","",""])
     plist=p.obj("prepend list",(5000,370,90,22),1,1); p.c(midijs,1,plist,0); p.c(plist,0,mcoll,0)
     pwr=p.obj("prepend dumpaddr",(5150,430,110,22),1,1); p.c(mcoll,1,pwr,0); p.c(pwr,0,midijs,0)
