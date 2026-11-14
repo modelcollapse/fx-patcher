@@ -911,7 +911,7 @@ def build_main():
         p.com("▾",(2400,y,16,20),(14,y+2,16,20)); p.com(title,(2420,y,200,20),(30,y+2,200,20),fontface=1)
         if note: p.com(note,(2620,y,800,20),(240,y+2,900,20))
     # ---------- header ----------
-    p.com("FX PATCHER v13.1",(12,12,348,20),(12,12,348,20))
+    p.com("FX PATCHER v13.2",(12,12,348,20),(12,12,348,20))
     au=ltext(p,"audio","Audio",1,(12,34,84,18),(12,36,84,18)); nov(p)
     pn=ltext(p,"panic","Panic",0,(100,34,84,18),(100,36,84,18)); nov(p)
     clr=ltext(p,"clear","Clear all",0,(188,34,84,18),(188,36,84,18)); nov(p)
@@ -979,7 +979,7 @@ env = min(envIn, envOut);
 out1 = sl * gl * env;
 out2 = sr * gr * env;
 """
-    def file_block(fy,fcy,slot_id,header,drop_title,names,frame_color,dy=0):
+    def file_block(fy,fcy,slot_id,header,drop_title,names,frame_color,letter,input_gain,dy=0):
         """One drag-drop loop player + its File FX chain. slot_id addresses it on the
         shared fx.mod/fx.touch/fx.labels buses (same mechanism as an effect slot), so it
         shows up as its own LFO target."""
@@ -991,6 +991,7 @@ out2 = sr * gr * env;
         fld_=ltext(p,names["load"],"Load",0,(56,342+dy,36,18),(56,hy,36,18)); nov(p)
         lp=ltext(p,names["loop"],"Loop",1,(94,342+dy,44,18),(94,hy,44,18)); nov(p)
         fclr=ltext(p,names["clear"],"Clear",0,(140,342+dy,44,18),(140,hy,44,18)); nov(p)
+        frec=ltext(p,names["rec"],"Rec",1,(188,342+dy,40,18),(188,hy,40,18)); nov(p)
         pl=p.add("playlist~",None,(10,900+dy,600,88),(10,fy,W,88),1,5,["signal","signal","signal","",""],channelcount=2,varname=names["player"])
         plm=p.obj("prepend loop",(200,950+dy,90,22),1,1); p.c(lp,0,plm,0); p.c(plm,0,pl,0)
         p.add("panel",None,(620,870+dy,600,20),(10,fy,W,88),1,0,border=1,rounded=0,background=1,varname=names["dropbg"],
@@ -1050,19 +1051,42 @@ out2 = sr * gr * env;
         m8=p.obj("prepend fpan",(1260,1330+dy,80,22),1,1); p.c(frt,7,m8,0); p.c(m8,0,fg,0)
         m9=p.obj("prepend fadein",(1360,1330+dy,90,22),1,1); p.c(frt,8,m9,0); p.c(m9,0,fg,0)
         m10=p.obj("prepend fadeout",(1460,1330+dy,100,22),1,1); p.c(frt,9,m10,0); p.c(m10,0,fg,0)
+        # Rec: captures whatever's on this input right now straight into this player's
+        # buffer. Reuses fxrec.js (the same recorder helper as the multitrack Record
+        # section) for a timestamped file, then clears/loads/loops it in exactly like a
+        # drag-drop once the take is stopped.
+        sfcap=p.obj("sfrecord~ 2",(200,1570+dy,90,22),2,1,["signal"])
+        p.c(input_gain,0,sfcap,0); p.c(input_gain,1,sfcap,1)
+        tstart=p.obj("sel 1",(380,1570+dy,60,22),2,2); p.c(frec,0,tstart,0)
+        mcapreq=p.msg(letter,(380,1600+dy,40,22)); p.c(tstart,0,mcapreq,0)
+        scapreq=p.obj("s fx.capturereq",(380,1630+dy,110,22),1,0); p.c(mcapreq,0,scapreq,0)
+        rcapresp=p.obj("r fx.capturepath",(500,1570+dy,100,22),0,1)
+        fcap=p.obj(f"route {letter}",(500,1600+dy,80,22),1,2); p.c(rcapresp,0,fcap,0)
+        pathbox=p.msg("",(500,1720+dy,260,22))
+        psetpath=p.obj("prepend set",(500,1630+dy,80,22),1,1); p.c(fcap,0,psetpath,0); p.c(psetpath,0,pathbox,0)
+        popencap=p.obj("prepend open",(620,1630+dy,90,22),1,1); p.c(fcap,0,popencap,0); p.c(popencap,0,sfcap,0)
+        startcap=p.msg("1",(620,1660+dy,30,22)); p.c(fcap,0,startcap,0); p.c(startcap,0,sfcap,0)
+        tstop=p.obj("sel 0",(380,1690+dy,60,22),2,2); p.c(frec,0,tstop,0)
+        stopcap=p.msg("0",(380,1720+dy,30,22)); p.c(tstop,0,stopcap,0); p.c(stopcap,0,sfcap,0)
+        dlystop=p.obj("delay 100",(380,1750+dy,70,22),2,1); p.c(tstop,0,dlystop,0)
+        tseq=p.obj("t b b b",(380,1780+dy,60,22),1,3); p.c(dlystop,0,tseq,0)
+        clmcap=p.msg("clear",(300,1810+dy,40,22)); p.c(tseq,2,clmcap,0); p.c(clmcap,0,pl,0)
+        loncap=p.msg("1",(380,1810+dy,30,22)); p.c(tseq,1,loncap,0); p.c(loncap,0,lp,0)
+        bangpath=p.obj("t b",(460,1810+dy,30,22),1,1,["bang"]); p.c(tseq,0,bangpath,0); p.c(bangpath,0,pathbox,0)
+        pappendcap=p.obj("prepend append",(460,1840+dy,100,22),1,1); p.c(pathbox,0,pappendcap,0); p.c(pappendcap,0,pl,0)
         return fg
     adc=p.obj("adc~ 1 2 3 4",(700,900,100,22),1,4,["signal"]*4)
     im=p.obj("matrix~ 8 4",(700,960,140,22),8,5,["signal"]*4+["list"])
     lr=p.obj("loadmess ramp 30",(860,930,110,22),1,1); p.c(lr,0,im,0)
     for k in range(4): p.c(adc,k,im,k)
     fgA=file_block(FY,FCY,9,"FILE A","DROP LOOP A HERE  ·  or press Load",
-        {"load":"file_load","loop":"file_loop","clear":"file_clear","player":"fileplayer",
+        {"load":"file_load","loop":"file_loop","clear":"file_clear","rec":"file_rec","player":"fileplayer",
          "dropbg":"dropbg","droplabel":"droplabel","dropzone":"dropzone","filectl":"filectl"},
-        SLOT_COLORS[0][0])
+        SLOT_COLORS[0][0],"A",gA)
     fgB=file_block(FY2,FCY2,10,"FILE B","DROP LOOP B HERE  ·  or press Load",
-        {"load":"file_load_b","loop":"file_loop_b","clear":"file_clear_b","player":"fileplayerB",
+        {"load":"file_load_b","loop":"file_loop_b","clear":"file_clear_b","rec":"file_rec_b","player":"fileplayerB",
          "dropbg":"dropbgB","droplabel":"droplabelB","dropzone":"dropzoneB","filectl":"filectlB"},
-        SLOT_COLORS[1][0],dy=2000)
+        SLOT_COLORS[1][0],"B",gB,dy=2000)
     p.c(fgA,0,im,4); p.c(fgA,1,im,5); p.c(fgB,0,im,6); p.c(fgB,1,im,7)
     def subp(name,pr,ins,outs,inner):
         q=P(); il=[q.obj("inlet",(20+i*300,10,30,22),0,1) for i in range(ins)]
@@ -1241,7 +1265,12 @@ out2 = sr * gr * env;
     tk_=p.com("",(4200,200,300,18),(700,RY+146,560,18))
     # recorder logic
     node=p.obj("node.script fxrec.js @autostart 1",(3600,600,220,22),1,2)
-    rn=p.obj("route folder open go take status",(3600,640,240,22),1,6); p.c(node,0,rn,0)
+    rn=p.obj("route folder open go take status capturepath",(3600,640,280,22),1,7); p.c(node,0,rn,0)
+    # File A/File B "Rec" (record into buffer) share this same recorder helper for a
+    # timestamped filename; fed in via a global bus since those blocks are built earlier
+    rcapreq=p.obj("r fx.capturereq",(3600,560,90,22),0,1)
+    pcapreq=p.obj("prepend capture",(3600,580,100,22),1,1); p.c(rcapreq,0,pcapreq,0); p.c(pcapreq,0,node,0)
+    scapresp=p.obj("s fx.capturepath",(3850,670,100,22),1,0)
     pf=p.obj("prepend set",(3600,670,80,22),1,1); p.c(rn,0,pf,0); p.c(pf,0,fld,0)
     ro=p.obj("route 0 1 2 3 4 5 6 7 8 9 10",(3700,670,260,22),1,12); p.c(rn,1,ro,0)
     for i,sf in enumerate(recs):
@@ -1249,6 +1278,7 @@ out2 = sr * gr * env;
     sgo=p.obj("s fx.rec.go",(3600,730,80,22),1,0); p.c(rn,2,sgo,0)
     ptk=p.obj("prepend set Take:",(3800,730,110,22),1,1); p.c(rn,3,ptk,0); p.c(ptk,0,tk_,0)
     pstat=p.obj("prepend set",(3950,730,80,22),1,1); p.c(rn,4,pstat,0); p.c(pstat,0,stR,0)
+    p.c(rn,5,scapresp,0)
     # format
     fsel=p.obj("sel 0 1",(3850,90,60,22),3,3); p.c(fmt,0,fsel,0)
     f24=p.msg("samptype int24",(3850,120,100,22)); f32=p.msg("samptype float32",(3960,120,110,22))

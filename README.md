@@ -89,10 +89,13 @@ There are two independent file players, **File A** and **File B**, stacked one a
 | **Load** | Opens a file picker instead of dragging. |
 | **Loop** | Turns looping on or off. Switches on automatically whenever you drop a file or press Load. |
 | **Clear** | Empties the player and brings the drop zone back. |
+| **Rec** | Records straight into this player's buffer — captures whatever's currently on that input (File A's Rec records input A, File B's records input B). Press again to stop; the take loads and starts looping immediately, just like a drop. |
 
 To pick which loop plays through which input, use the **A**/**B** source menus under INPUT: choose **File A** on one, **File B** on the other (or both on the same input to layer them, or swap them to switch — that's the A/B select). Routing from there into the slots works exactly as it does for any other input. Neither input defaults to a file player (A starts on **1/2**, B on **3/4**), so if a loaded loop seems silent or stuck on one side, check that input's source menu is actually set to **File A** or **File B** — the loop players and the A/B inputs are independent, it's the source menu that connects them.
 
-Dropping a new file onto an already-loaded player, or pressing its **Load** again, replaces that loop — it doesn't stack the new file on top of the old one.
+Dropping a new file onto an already-loaded player, or pressing its **Load** again, replaces that loop — it doesn't stack the new file on top of the old one. **Rec** replaces it too, once you stop recording.
+
+Each Rec take is saved to `~/Documents/FX Patcher/Loop Captures/` (separate from the multitrack takes under Recording, below), named by player and timestamp.
 
 The small spectrum display under inputs A/B shows the master output.
 

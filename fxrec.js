@@ -34,4 +34,16 @@ Max.addHandler('start', (...armed) => {
   Max.outlet('take', path.basename(take));
 });
 Max.addHandler('openfolder', () => { try { fs.mkdirSync(folder, { recursive: true }); } catch (e) {} exec(`open "${folder}"`); });
+
+// File A / File B "record into buffer": a quick capture, separate from the take folders
+// above, that gets loaded straight back into that loop player once recording stops.
+const captureDir = path.join(os.homedir(), 'Documents', 'FX Patcher', 'Loop Captures');
+Max.addHandler('capture', (which) => {
+  try { fs.mkdirSync(captureDir, { recursive: true }); } catch (e) { Max.outlet('status', 'Could not create folder'); return; }
+  const d = new Date(); const p = n => String(n).padStart(2, '0');
+  const stamp = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+  const file = path.join(captureDir, `File ${which} ${stamp}.wav`);
+  Max.outlet('capturepath', which, file);
+});
+
 showFolder();
