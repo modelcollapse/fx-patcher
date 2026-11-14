@@ -936,7 +936,6 @@ def build_main():
     nBpm=num(p,"bpm",120,20,300,(2480,180,40,15),(126,76,40,15))
     p.com("Beats/bar",(2540,180,60,18),(180,74,60,18))
     nBpb=num(p,"beats",4,1,16,(2610,180,30,15),(246,76,30,15))
-    p.com("Used by the LFOs' Sync rates",(2650,180,220,18),(290,76,220,18),fontsize=10.0)
     p.com("MIDI",(2700,180,36,20),(560,74,36,20),fontface=1)
     midiLearn=ltext(p,"midi_learn","Learn",1,(2740,180,56,18),(600,74,56,18)); nov(p)
     midiClear=ltext(p,"midi_clear","Clear MIDI",0,(2800,180,90,18),(1140,74,110,18)); nov(p)
@@ -1051,10 +1050,6 @@ out2 = sr * gr * env;
         m34=p.obj("prepend selection",(560,1450+dy,110,22),1,1); p.c(pk2,0,m34,0); p.c(m34,0,pl,0)
         mls=p.obj("prepend loopstart",(640,1480+dy,110,22),1,1); p.c(e34,0,mls,0); p.c(mls,0,fg,0)
         mle=p.obj("prepend loopend",(640,1510+dy,110,22),1,1); p.c(fin,0,mle,0); p.c(mle,0,fg,0)
-        e100=p.obj("* 100.",(560,1480+dy,60,22),2,1); p.c(fin,0,e100,0)
-        ei=p.obj("i",(560,1510+dy,40,22),2,1); p.c(e100,0,ei,0)
-        spe=p.obj("sprintf set End %d pct",(560,1540+dy,130,22),1,1); p.c(ei,0,spe,0)
-        endlab=p.com("End —",(1000,1200+dy,150,20),(1000,fcy+18,150,20)); p.c(spe,0,endlab,0)
         e5=p.obj("* 1.25",(900,1300+dy,50,22),2,1); p.c(frt,4,e5,0); m5=p.obj("prepend fvol",(900,1330+dy,80,22),1,1); p.c(e5,0,m5,0); p.c(m5,0,fg,0)
         e6=p.obj("* 2.",(1000,1300+dy,40,22),2,1); p.c(frt,5,e6,0); m6=p.obj("prepend fwid",(1000,1330+dy,80,22),1,1); p.c(e6,0,m6,0); p.c(m6,0,fg,0)
         e7=p.obj("expr 100.*exp($f1*5.298)",(1100,1300+dy,150,22),1,1); p.c(frt,6,e7,0); m7=p.obj("prepend ftone",(1100,1330+dy,80,22),1,1); p.c(e7,0,m7,0); p.c(m7,0,fg,0)
@@ -1201,7 +1196,6 @@ out2 = sr * gr * env;
         ps=p.obj("prepend set",(1600+i*60,440,70,22),1,1); p.c(upl,i,ps,0); p.c(ps,0,lb,0)
         ps2=p.obj("prepend set",(1600+i*60,530,70,22),1,1); p.c(rt,2+i,ps2,0); p.c(ps2,0,d,0)
         pn2=p.obj(f"prepend {i+1}",(1600+i*60,520,60,22),1,1); p.c(d,0,pn2,0); p.c(pn2,0,sout,0)
-    p.com("Knobs 1–8 mirror the strip · 9–16 live only here",(1600,600,300,20),(650,TOP+240,400,20))
     # ---------- MIDI learn ----------
     # Maps any incoming MIDI CC to any knob, over the same id/knob addressing the LFOs
     # use. A learned CC sets that knob's base value directly (fx.midi bus -> "base" in
