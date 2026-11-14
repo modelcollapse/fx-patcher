@@ -935,7 +935,7 @@ def build_main():
     stepNow=p.com("",(3500,330,120,18),(1144,118,120,18))
     # ---------- main area ----------
     p.com("INPUT",(12,78,128,20),(12,TOP,128,20))
-    OPTS=["Off","1/2","3/4","1 mono","2 mono","3 mono","4 mono","File A","File B"]
+    OPTS=["Off","1/2","3/4","File A","File B"]
     p.com("A",(12,100,20,20),(12,TOP+22,20,20)); mA=menu(p,"srcA_in",OPTS,1,(56,100,92,15),(56,TOP+22,92,15))
     gA=hgain(p,"srcA",(12,126,172,26),(12,TOP+44,172,26))
     p.com("B",(12,166,20,20),(12,TOP+84,20,20)); mB=menu(p,"srcB_in",OPTS,2,(56,166,92,15),(56,TOP+84,92,15))
@@ -1032,11 +1032,11 @@ out2 = sr * gr;
         ol=[q.add("newobj","outlet",(20+i*120,560,30,22),None,1,0) for i in range(outs)]
         inner(q,il,ol)
         return p.add("newobj","p "+name,pr,None,ins,outs,[""]*outs,patcher=q.patcher([100,100,700,620]))
-    pairs=[None,(0,1),(2,3),(0,0),(1,1),(2,2),(3,3),(4,5),(6,7)]
+    pairs=[None,(0,1),(2,3),(4,5),(6,7)]
     def picker_inner(q,il,ol):
         for j,outs in enumerate([(0,1),(2,3)]):
             x=20+j*300
-            sel=q.obj("sel 0 1 2 3 4 5 6 7 8",(x,50,190,22),2,10); q.c(il[j],0,sel,0)
+            sel=q.obj("sel 0 1 2 3 4",(x,50,130,22),2,6); q.c(il[j],0,sel,0)
             for k,pr in enumerate(pairs):
                 parts=[f"{i} {o} 0." for o in outs for i in range(8)]
                 if pr: parts+=[f"{pr[0]} {outs[0]} 1.",f"{pr[1]} {outs[1]} 1."]

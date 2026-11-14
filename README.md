@@ -48,7 +48,6 @@ You should now hear the loop through Shimmer, and the **Master** and **Out** met
 **A** and **B** are two stereo inputs, each with a source menu:
 
 - **1/2** or **3/4**: a stereo input pair
-- **1 mono** to **4 mono**: a single input, sent to both sides
 - **File A** / **File B**: either of the two file players (see below)
 - **Off**
 
