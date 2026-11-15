@@ -207,10 +207,10 @@
      "patching_rect": [
       400.0,
       500.0,
-      80.0,
+      100.0,
       22.0
      ],
-     "text": "prepend base",
+     "text": "prepend absolute",
      "outlettype": [
       ""
      ]
@@ -1645,7 +1645,7 @@
       400.0,
       22.0
      ],
-     "text": "Speed Pitch Start Length Volume Width Tone Pan Fade In Fade Out End",
+     "text": "\"Speed\" \"Pitch\" \"Start\" \"Length\" \"Volume\" \"Width\" \"Tone\" \"Pan\" \"Fade In\" \"Fade Out\" \"End\"",
      "outlettype": [
       ""
      ]
