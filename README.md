@@ -48,13 +48,13 @@ Below that is a **Tempo** row — **BPM** and **Beats/bar** — used only by the
 
 The same row has MIDI controls, for mapping a MIDI controller to any knob in the patch:
 
-1. Connect your controller before or after opening the patch — no device selection needed, it listens to all connected MIDI input.
+1. Connect your controller before or after opening the patch. It listens to all connected MIDI inputs.
 2. Press **Learn**. The status text prompts you to touch a knob.
 3. Touch (or just click) the knob you want to map — any of the 16 per slot, each slot's Mix, or any File FX knob.
 4. Move the control on your MIDI controller you want mapped to it. The status text confirms the mapping and you're ready for the next one — stay in Learn mode and repeat for as many knobs as you like.
 5. Press **Learn** again to leave learn mode. Already-mapped controls keep working whether Learn is on or off.
 
-**Clear MIDI** wipes every mapping. Mappings are saved automatically (to `fxmidimap.txt`, in coll's own format) and reloaded the next time you open the patch — unlike everything else in the patch, which doesn't persist.
+**Clear MIDI** wipes every mapping. Each mapping uses the MIDI channel and CC number, so the same CC can control different knobs on different channels. Mappings are saved automatically in `~/Documents/FX Patcher/midi-mappings.json` and reloaded when you reopen the patch.
 
 A mapped MIDI control sets a knob's base value directly, the same as turning it by hand — it stacks with LFO modulation on the same knob exactly the way manual turning does. Only knobs are mappable (not Bypass, Audio, menus, or other buttons).
 
@@ -73,9 +73,10 @@ Under each menu is a gain fader with a meter. **Mon** plays that input straight 
 The **Routing** grid works like a patch bay. Sources are on the left (A, B and the outputs of Slots 1–8). Destinations are on the right (the inputs of Slots 1–8, and Master).
 
 - **Connect:** click a source dot, then a destination dot.
+- **Set a send level:** drag up or down on the round control on the cable. The value displays in dB while you drag. Use this to set how much one slot feeds another or how loud a parallel effect is at Master.
 - **Disconnect:** click a cable to select it, then press Delete.
 
-One source can feed several destinations, and several sources can feed one. Slots can feed each other in any order, including feedback loops.
+One source can feed several destinations, and several sources can feed one. Slots can feed each other in any order, including feedback loops. Start feedback cables at a low level. A slot's **in** fader changes the summed signal entering its effect, and its **out** fader changes the level sent down all its outgoing cables.
 
 ## The file players
 
@@ -89,11 +90,11 @@ There are two independent file players, **File A** and **File B**, stacked one a
 | **Load** | Opens a file picker instead of dragging. |
 | **Loop** | Turns looping on or off. Switches on automatically whenever you drop a file or press Load. |
 | **Clear** | Empties the player and brings the drop zone back. |
-| **Rec** | Records straight into this player's buffer — captures whatever's currently on that input (File A's Rec records input A, File B's records input B). Press again to stop; the take loads and starts looping immediately, just like a drop. |
+| **Rec** | Captures input A or B after its gain fader. Press again to stop. A completed take loads into that file player and starts looping. |
 
-To pick which loop plays through which input, use the **A**/**B** source menus under INPUT: choose **File A** on one, **File B** on the other (or both on the same input to layer them, or swap them to switch — that's the A/B select). Routing from there into the slots works exactly as it does for any other input. Neither input defaults to a file player (A starts on **1/2**, B on **3/4**), so if a loaded loop seems silent or stuck on one side, check that input's source menu is actually set to **File A** or **File B** — the loop players and the A/B inputs are independent, it's the source menu that connects them.
+Use the **A** and **B** source menus under INPUT to assign either file player to either input. To layer the loops, choose **File A** on one input and **File B** on the other, then route both inputs to the same destination. A starts on **1/2** and B starts on **3/4**.
 
-Dropping a new file onto an already-loaded player, or pressing its **Load** again, replaces that loop — it doesn't stack the new file on top of the old one. **Rec** replaces it too, once you stop recording.
+To replace a loop, drop a new file on **Drop a replacement here**, press **Load**, or finish a new **Rec** take.
 
 Each Rec take is saved to `~/Documents/FX Patcher/Loop Captures/` (separate from the multitrack takes under Recording, below), named by player and timestamp.
 
@@ -101,13 +102,11 @@ The small spectrum display under inputs A/B shows the master output.
 
 ### File FX
 
-The row under each file player shapes that loop itself: **Speed** (tape-style, 1× in the middle), **Pitch** (±1 octave, keeps the tempo), **Start** and **Length** (which part of the file loops), **Volume**, **Width** (mono to extra-wide), **Tone** (low-pass), **Pan**, **Fade In** and **Fade Out** (each 0 to half the loop, smoothing the loop's boundary so it doesn't click or pop where it wraps), and **End**. All eleven can be LFO targets: pick **File A** or **File B** in an LFO's Slot menu — the list stops at these 11, so you always see where it ends — or press Learn and move one of these knobs. Sweeping Start makes a scanning, granular-style loop.
+The row under each file player shapes that loop itself: **Speed** (0.25× to 2×, starting at 1×), **Pitch** (±1 octave, keeps the tempo), **Start** and **Length** (which part of the file loops), **Volume**, **Width** (mono to extra-wide), **Tone** (low-pass), **Pan**, **Fade In** and **Fade Out** (each 0 to half the loop), and **End**. All eleven can be LFO targets. Pick **File A** or **File B** in an LFO's Slot menu, or press Learn and move the knob. Sweeping Start makes a scanning, granular-style loop.
 
-**End** trims Length's computed end point, independently of Length itself — at 1.00 it does nothing (the loop ends exactly where Length puts it), and turning it down pulls the end earlier. Because it's its own knob, you can LFO or Learn it directly, separately from Length. The small **End** readout next to the knobs always shows the loop's actual end point (as a % of the file), after that trim.
+**End** trims the end point set by Start and Length. At 1.00 the loop plays the full selected range. Turn it down to bring the end earlier while keeping the same start.
 
 Each file player and its File FX row sit inside one bordered card — red-bordered for File A, orange for File B, matching their cable color in Routing — with the waveform/drop area tinted separately from the knob row, so the two are easy to tell apart at a glance.
-
-Next to each File FX row, an **End** readout shows where the loop currently ends (as a % of the whole file), computed live from Start and Length — there's no separate End knob, but you can always see the point those two add up to.
 
 ## Effect slots
 
@@ -173,7 +172,7 @@ Each armed source records its own WAV file. Every take gets its own dated folder
 
 ## Saving your work
 
-There's no scene or save/recall system — this is a purely live-performance patch. Nothing about your routing, knob settings or loaded loops persists between sessions; a reopened patch always starts empty (no file loaded, no cables). Recordings are the one thing that's saved automatically, under **Recording** above.
+The patch opens with empty routing and file players. WAV recordings, MIDI mappings, and the chosen recording folder persist between sessions.
 
 ## Troubleshooting
 
@@ -203,10 +202,12 @@ There's no scene or save/recall system — this is a purely live-performance pat
 | `fxm.*.maxpat` | The effect modules, loaded into each slot |
 | `fxlfo.js` | LFO engine |
 | `fxmidimap.js` | MIDI Learn engine |
+| `fxloop.js` | File player loop selection and playback |
 | `fxmod.js` | Per-slot "knob + LFO" combiner |
-| `fxrec.js` | Recorder take folders and settings |
+| `fxcapture.js`, `fxrecordctl.js` | File capture and multitrack recording controls |
+| `fxrec.js` | Recorder folders, capture checks, and saved settings |
 | `fxtest.maxpat` | Self-test: runs every effect on a test tone and prints each one's output level to the Max Console |
-| `make_fxpatcher.py` | Python generator that writes all the `.maxpat` files: `python3 make_fxpatcher.py ./`. Only needed if you want to change the design in code. |
+| `make_fxpatcher.py` | Regenerates the patch and abstractions with `python3 make_fxpatcher.py ./` from the project folder. |
 
 ## Roadmap
 
