@@ -42,3 +42,9 @@ function update() {
     outlet(1, "loopend", right);
     if (loaded) outlet(2, "selection", 1, left, right);
 }
+
+// Handoff loads a usable clip without issuing playlist~'s play command.
+function loadstopped() {
+    loaded = true;
+    update();
+}

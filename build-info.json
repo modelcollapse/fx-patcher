@@ -1,0 +1,9 @@
+{
+  "baseline": "Installed FX Patcher 13.2.1",
+  "originalBoxes": 482,
+  "boxes": 490,
+  "originalConnections": 636,
+  "connections": 646,
+  "preservedExistingGraph": true,
+  "scenesIncluded": false
+}
