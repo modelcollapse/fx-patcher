@@ -35,8 +35,20 @@ Candidate:
 
 Isolated startup/visual preview (separate bundle ID, preferences and exchange
 root; not launched by this subagent):
-`/private/tmp/fx-patcher-preview-hcqie369/FX Patcher Handoff Preview.app`
+`/private/tmp/fx-patcher-preview-zhlu7nab/FX Patcher.app`
 
-Actual standalone startup/visual inspection remains a root-agent check. Native
-receiver testing verifies loaded audio and stop state; it does not start DSP
-or claim audible hardware output.
+Actual standalone worker startup and root-agent visual inspection passed. The
+GUI showed v13.2.2 and ready-to-receive status; the root agent quit the preview
+through its own menu. The preview verified actual resource preferences, loaded
+main/receiver/worker/players, and real Node resolution from the extracted
+collective to loose Resources/handoff modules. Its private exchange jobs and
+locks were created. Evidence: /private/tmp/fx-patcher-preview-zhlu7nab/standalone-results.json.
+
+Production packaging now sets resource STR#4013 to FXPatcher, keeps preferences
+separate from FieldKit/MaxLooper, and does not migrate mixed live preferences.
+The production preference folder did not exist at packaging time: first launch
+uses fresh preferences with Audio off. CFBundleDocumentTypes and CFBundleURLTypes
+are absent; packaging does not change global LaunchServices settings.
+
+Native receiver testing verifies loaded audio and stop state; it does not start
+DSP or claim audible hardware output.

@@ -11,6 +11,7 @@ import json
 import plistlib
 import shutil
 import subprocess
+import sys
 import tempfile
 import build_handoff as build
 from mxf import Collective
@@ -67,8 +68,12 @@ def package(baseline: Path, destination: Path, native_collective: Path | None = 
         shutil.copytree(ROOT / 'handoff', resources / 'handoff', dirs_exist_ok=True)
         info['CFBundleShortVersionString'] = build.VERSION
         info['CFBundleVersion'] = build.VERSION
+        info.pop('CFBundleDocumentTypes', None)
+        info.pop('CFBundleURLTypes', None)
         with (candidate / 'Contents/Info.plist').open('wb') as file:
             plistlib.dump(info, file, sort_keys=False)
+        subprocess.run([sys.executable, str(ROOT / 'scripts/set_max_preferences.py'),
+                        str(candidate), 'FXPatcher'], check=True)
         if sign:
             # Copied FinderInfo/resource-fork xattrs are not valid signed code
             # resources. Clear them on this disposable candidate only.
@@ -83,7 +88,8 @@ def package(baseline: Path, destination: Path, native_collective: Path | None = 
         if sign:
             subprocess.run(['/usr/bin/codesign', '--verify', '--deep', '--strict', str(destination)], check=True)
         report = {'version': build.VERSION, 'baseline': str(baseline), 'candidate': str(destination),
-                  'signedAdHoc': sign, 'scenesCopiedFromCanonical': False, **preservation}
+                  'signedAdHoc': sign, 'scenesCopiedFromCanonical': False,
+                  'preferences': 'FXPatcher', 'preferencesMigrated': False, **preservation}
         (destination.parent / (destination.stem + '-build.json')).write_text(json.dumps(report, indent=2) + '\n')
         return report
     finally:

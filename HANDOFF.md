@@ -73,8 +73,8 @@ byte, installs the shared CommonJS modules beside the app's Resources, sets
 version 13.2.2 and signs the local candidate ad hoc. It verifies the signature
 and writes a SHA-256 build report beside the candidate. It refuses an existing
 destination or a baseline with a different version. The original app and user
-data are untouched. Native app launch verification is still required; ad hoc
-signing does not create a notarized release.
+data are untouched. Actual standalone worker startup and visual inspection passed on an isolated
+preview. Ad hoc signing does not create a notarized release.
 
 Build/sign outside a File Provider managed folder. Some Documents folders
 automatically add FinderInfo to nested `.mxo` bundles, which invalidates code
@@ -86,6 +86,12 @@ An official Max-built collective can instead be supplied with
 and scripts against the staged source. `mxf.py` documents the narrow lossless
 resource-update fallback and has synthetic preservation tests.
 
-See [HANDOFF-VERIFICATION.md](HANDOFF-VERIFICATION.md) for test evidence and the
-pending standalone startup check. The source and native Max pipeline are
-verified; this draft does not claim hardware audibility or notarized release.
+See [HANDOFF-VERIFICATION.md](HANDOFF-VERIFICATION.md) for test evidence,
+including actual standalone worker startup and visual inspection. This draft
+does not claim hardware audibility or notarized release.
+
+The production app uses separate **FXPatcher** preferences through actual
+standalone resource STR#4013. Mixed live FieldKit/MaxLooper preferences are not
+migrated; first launch uses fresh preferences with Audio off. Finder document
+types and URL handlers are removed from the new bundle, and packaging does not
+change global LaunchServices preferences.

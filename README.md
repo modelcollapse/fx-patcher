@@ -1,6 +1,6 @@
 # FX Patcher
 
-This branch adds **13.2.2 audio handoff from Max Looper** on the verified 13.2.1 desktop baseline. Choose File A or File B in Looper to receive its rendered audio stopped, with existing FX and routing retained. See [audio handoff setup and builds](HANDOFF.md) and [verification evidence](HANDOFF-VERIFICATION.md). Standalone startup verification is pending; this is a draft change.
+This branch adds **13.2.2 audio handoff from Max Looper** on the verified 13.2.1 desktop baseline. Choose File A or File B in Looper to receive its rendered audio stopped, with existing FX and routing retained. See [audio handoff setup and builds](HANDOFF.md) and [verification evidence](HANDOFF-VERIFICATION.md). Standalone worker startup and GUI inspection passed; this remains a draft change.
 
 A self-contained Max 9 modular effects rack for ambient work. You get eight stereo effect slots, routing you patch with cables, sixteen LFOs, MIDI Learn on every knob, and multitrack recording. Everything is stock Max and ABL objects, so there are no third-party externals or VSTs.
 
